@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 
     // 실제 Spring Boot 서버로 요청 전달 (서버가 실행 중일 때)
     try {
-      const springResponse = await fetch("http://localhost:8080/api/auth/register", {
+      const springResponse = await fetch("http://localhost:8080", { // 이 부분 수정 필요
         method: "POST",
         headers: {
           "Content-Type": "application/json",
