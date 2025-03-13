@@ -1,0 +1,62 @@
+import axios from "axios"
+
+const API_BASE_URL = "http://localhost:8080/api"
+
+/**
+ * API 요청을 처리하는 서비스 함수
+ * @param url API 엔드포인트 경로
+ * @param data 요청 데이터
+ * @returns 응답 데이터
+ */
+export const apiService = async (url: string, data: object) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}${url}`, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "*/*",
+      },
+      withCredentials: true, // CORS 관련 쿠키 전송 허용
+    })
+
+    return response.data
+  } catch (err: any) {
+    console.error("Error details:", err)
+
+    throw new Error(
+      err.response?.data?.message || "오류가 발생했습니다. 입력하신 정보가 올바른지 확인해주세요.",
+    )
+  }
+}
+
+/**
+ * GET 요청을 처리하는 서비스 함수
+ * @param url API 엔드포인트 경로
+ * @param token 인증 토큰 (선택적)
+ * @returns 응답 데이터
+ */
+export const apiServiceGet = async (url: string, token?: string) => {
+  try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Accept: "*/*",
+    }
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`
+    }
+
+    const response = await axios.get(`${API_BASE_URL}${url}`, {
+      headers,
+      withCredentials: true,
+    })
+
+    return response.data
+  } catch (err: any) {
+    console.error("Error details:", err)
+
+    throw new Error(
+      err.response?.data?.message || "서버에 연결할 수 없습니다. Spring Boot 서버가 실행 중인지 확인하세요.",
+    )
+  }
+}
+
