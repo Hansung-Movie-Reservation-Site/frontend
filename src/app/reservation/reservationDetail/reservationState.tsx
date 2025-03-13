@@ -17,16 +17,19 @@ const ReservationState = ({ activeStep, setActiveStep }: ReservationStateProps) 
     <Disclosure as="nav" className="bg-gray-800">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            <div className="shrink-0">
-              <img
-                alt="Your Company"
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                className="size-8"
-              />
-            </div>
+          {/* <div className="shrink-0">
+            <img
+              alt="Your Company"
+              src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
+              className="size-8"
+            />
+          </div> */}
+          <div
+            className="flex items-center"
+            style={{ justifyContent: "space-between", margin: "auto" }}
+          >
             <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
+              <div className="ml-10 flex items-baseline space-x-10">
                 {steps.map((item, i) => (
                   <div key={item} className="relative flex">
                     <span
@@ -34,9 +37,9 @@ const ReservationState = ({ activeStep, setActiveStep }: ReservationStateProps) 
                       aria-current={activeStep === i ? "page" : undefined}
                       className={classNames(
                         activeStep === i
-                          ? "bg-gray-900 text-white m-1 px-3 py-2"
+                          ? "bg-gray-900 text-white m-1 px-4 py-3"
                           : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                        "rounded-md px-3 py-2 text-sm font-medium m-1"
+                        "rounded-md px-4 py-3 text-sm font-medium m-1"
                       )}
                       onClick={() => setActiveStep(i)}
                     >
