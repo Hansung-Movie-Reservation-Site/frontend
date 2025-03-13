@@ -28,19 +28,31 @@ const ReservationState = ({ activeStep, setActiveStep }: ReservationStateProps) 
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
                 {steps.map((item, i) => (
-                  <a
-                    key={item}
-                    aria-current={activeStep === i ? "page" : undefined}
-                    className={classNames(
-                      activeStep === i
-                        ? "bg-gray-900 text-white"
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                      "rounded-md px-3 py-2 text-sm font-medium"
-                    )}
-                    onClick={() => setActiveStep(i)} // 클릭 시 해당 step 활성화
-                  >
-                    {item}
-                  </a>
+                  <div key={item} className="relative flex">
+                    <span
+                      key={item}
+                      aria-current={activeStep === i ? "page" : undefined}
+                      className={classNames(
+                        activeStep === i
+                          ? "bg-gray-900 text-white m-1 px-3 py-2"
+                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                        "rounded-md px-3 py-2 text-sm font-medium m-1"
+                      )}
+                      onClick={() => setActiveStep(i)}
+                    >
+                      {/* // 클릭 시 해당 step 활성화 */}
+                      {item}
+                    </span>
+                    <span
+                      className={classNames(
+                        activeStep === i ? "relative flex size-3 translate-x-[-10px]" : "invisible"
+                      )}
+                    >
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
+                      <span className="relative inline-flex size-3 rounded-full bg-sky-500"></span>
+                    </span>
+                  </div>
+                  // <div className="w-4 h-4 bg-blue-500 rounded-full animate-ping"></div>
                 ))}
               </div>
             </div>

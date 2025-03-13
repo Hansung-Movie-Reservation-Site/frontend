@@ -4,6 +4,7 @@
   --background: #ffffff;
   --foreground: #171717;
   --animate-spin: spin 5s linear infinite;
+  --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 @theme inline {
@@ -33,4 +34,14 @@ body {
 
 .animate-spin {
   animation: var(--animate-spin);
+}
+.animate-ping {
+  animation: var(--animate-ping); /* ping 1s cubic-bezier(0, 0, 0.2, 1) infinite */
+}
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
