@@ -7,7 +7,7 @@ export const ReservationState = ({ activeStep }: { activeStep: number }) => {
       initial={{ y: "100%" }}
       animate={{ y: 0 }}
       exit={{ y: "100%" }}
-      className="fixed bottom-0 left-0 w-full bg-white shadow-lg p-4 rounded-t-2xl"
+      className="z-2 fixed bottom-0 left-0 w-full bg-white shadow-lg p-4 rounded-t-2xl"
     >
       <div className="fixed bottom-0 left-0 z-20 w-full p-4 bg-white border-t border-gray-200 shadow-sm md:p-6 dark:bg-gray-800 dark:border-gray-600">
         <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">

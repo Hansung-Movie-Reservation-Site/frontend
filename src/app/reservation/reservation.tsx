@@ -50,7 +50,7 @@ export default function Reservation() {
                   transition={{ duration: 0.5, ease: "easeInOut" }} // 더 부드러운 효과 적용
                 >
                   {activeStep === 0 ? (
-                    <SelectedMovie />
+                    <SelectedMovie setActiveStep={setActiveStep} />
                   ) : activeStep === 1 ? (
                     <SelectedCinema />
                   ) : activeStep === 2 ? (

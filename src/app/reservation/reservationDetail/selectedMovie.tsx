@@ -1,6 +1,11 @@
 import { TypingText } from "@/app/Common/Animation/typingAni";
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
 import { apiServiceGet } from "@/app/Common/Service/apiService";
+
+interface SelectedMovieProps {
+  setActiveStep: React.Dispatch<React.SetStateAction<number>>;
+}
+
 const products = [
   {
     id: 1,
@@ -65,7 +70,8 @@ const products = [
   // More products...
 ];
 
-const SelectedMovie = () => {
+const SelectedMovie: React.FC<SelectedMovieProps> = ({ setActiveStep }) => {
+  console.log("setActiveStep 전달 확인:", setActiveStep);
   const movieList = "영화목록";
   const reserve = "예매하기";
 
@@ -99,9 +105,10 @@ const SelectedMovie = () => {
                   <p className="mt-1 text-sm text-gray-500">{product.color}</p>
                 </div>
                 <button
-                  className="rounded-md bg-slate-800 py-2 px-4 border border-transparent transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none flex"
+                  className="z-1 rounded-md bg-slate-800 py-2 px-4 border border-transparent transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none flex"
                   type="button"
                   aria-label={reserve}
+                  onClick={() => setActiveStep(1)}
                 >
                   <div className="w-20 text-center">
                     <TypingText text={reserve} className={"text-md text-white"}></TypingText>
