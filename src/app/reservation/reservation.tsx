@@ -24,9 +24,9 @@ export default function Example() {
       <div className="min-h-full">
         <ReservationState activeStep={activeStep} setActiveStep={setActiveStep}></ReservationState>
 
-        <header className="bg-white shadow">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-normal text-gray-900 font-lato">
+        <header className="bg-white shadow-md">
+          <div className="mx-auto max-w-7xl py-4 sm:px-6 lg:px-8">
+            <h1 className="text-2xl font-normal text-gray-900 font-lato">
               <TypingText text={text}></TypingText>
             </h1>
           </div>
