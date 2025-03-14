@@ -1,5 +1,6 @@
-import { TypingText } from "@/app/Common/Animation/TypingAni";
+import { TypingText } from "@/app/Common/Animation/typingAni";
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
+import { apiServiceGet } from "@/app/Common/Service/apiService";
 const products = [
   {
     id: 1,
@@ -67,6 +68,9 @@ const products = [
 const SelectedMovie = () => {
   const movieList = "영화목록";
   const reserve = "예매하기";
+
+  // const movieDb = apiServiceGet("v1/movies/fetch");
+  // console.log(movieDb);
   return (
     <div className="bg-white shadow-md">
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8">
