@@ -46,7 +46,7 @@ const ReservationState = ({ activeStep, setActiveStep }: ReservationStateProps) 
                       onClick={() => setActiveStep(i)}
                     >
                       {/* // 클릭 시 해당 step 활성화 */}
-                      <TypingText text={item}></TypingText>
+                      <TypingText text={item} className=""></TypingText>
                     </span>
                     <span
                       className={classNames(

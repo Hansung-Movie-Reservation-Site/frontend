@@ -9,7 +9,7 @@ import { TypingText } from "@/app/Common/Animation/TypingAni";
 import Payment from "./reservationDetail/payment";
 import { BufferingAni } from "../Common/Animation/MotionAni";
 
-export default function Example() {
+export default function Reservation() {
   const [activeStep, setActiveStep] = useState(0); // 현재 활성화된 단계
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
@@ -27,7 +27,10 @@ export default function Example() {
         <header className="bg-white shadow-md">
           <div className="mx-auto max-w-7xl py-4 sm:px-6 lg:px-8">
             <h1 className="text-2xl font-normal text-gray-900 font-lato">
-              <TypingText text={text}></TypingText>
+              <TypingText
+                text={text}
+                className="text-2xl font-bold text-gray-900 font-lato"
+              ></TypingText>
             </h1>
           </div>
         </header>
@@ -35,7 +38,7 @@ export default function Example() {
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <AnimatePresence mode="wait">
               {isLoading ? ( // 로딩 중이면 스피너 표시
-                <BufferingAni></BufferingAni>
+                <BufferingAni className={"translate-y-23"}></BufferingAni>
               ) : (
                 <motion.div
                   key={activeStep} // key 변경 시 애니메이션 실행
