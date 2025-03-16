@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import ReservationNav from "./reservationDetail/reservationNav";
+import ReservationNav from "./reservationUI/reservationNav";
 import SelectedCinema from "./reservationDetail/selectedCinema";
 import SelectedSeat from "./reservationDetail/selectedSeat";
 import SelectedMovie from "./reservationDetail/selectedMovie";

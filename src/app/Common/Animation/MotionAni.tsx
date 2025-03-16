@@ -17,6 +17,7 @@ export const BufferingAni = ({ className }: { className: string }) => {
     </div>
   );
 };
+
 export const ProgressBarAni = ({
   name,
   width,
@@ -27,16 +28,19 @@ export const ProgressBarAni = ({
   className: string;
 }) => {
   return (
-    <>
-      <div className={`${className}`}>
-        <div className="flex justify-between mb-1">
-          <span className="text-base font-medium text-gray-700 dark:text-white">{name}</span>
-          <span className="text-sm font-medium text-gray-700 dark:text-white">{width}%</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-          <div className="bg-gray-900 h-2.5 rounded-full" style={{ width: `${width}%` }}></div>
-        </div>
+    <div className={className}>
+      <div className="flex justify-between mb-1">
+        <span className="text-base font-medium text-gray-700 dark:text-white">{name}</span>
+        <span className="text-sm font-medium text-gray-700 dark:text-white">{width}%</span>
       </div>
-    </>
+      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
+        <motion.div
+          className="bg-gray-900 h-2.5 rounded-full"
+          initial={{ width: "0%" }}
+          animate={{ width: `${width}%` }}
+          transition={{ duration: 0.7, ease: "easeInOut" }}
+        />
+      </div>
+    </div>
   );
 };
