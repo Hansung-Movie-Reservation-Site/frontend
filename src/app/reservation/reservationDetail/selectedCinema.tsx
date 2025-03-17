@@ -106,7 +106,11 @@ const showtimes = [
   { id: 5, time: "21:50", seats: "30/150", hall: "2관" },
 ];
 
-const SelectedCinema = () => {
+interface SelectedMovieProps {
+  setActiveStep: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const SelectedCinema: React.FC<SelectedMovieProps> = ({ setActiveStep }) => {
   // const [cinema, setCinema] = useState({
   //   region: "",
   //   theater: "",
@@ -232,6 +236,7 @@ const SelectedCinema = () => {
   // 영화 목록 컨테이너에 대한 ref 생성
   const movieListRef = useRef<HTMLDivElement>(null);
   const showtimeRef = useRef<HTMLDivElement>(null);
+  const seatButtonRef = useRef<HTMLDivElement>(null);
 
   const handleTheaterSelect = (theaterId: number) => {
     setSelectedTheater(theaterId);
@@ -268,6 +273,15 @@ const SelectedCinema = () => {
 
   const handleShowtimeSelect = (showtimeId: number) => {
     setSelectedShowtime(showtimeId);
+
+    setTimeout(() => {
+      if (seatButtonRef.current) {
+        seatButtonRef.current.scrollIntoView({
+          behavior: "smooth", // 부드러운 스크롤 애니메이션
+          block: "start", // 요소의 상단으로 스크롤
+        });
+      }
+    }, 100);
   };
 
   const filteredTheaters = theaters.filter((theater) => theater.regionId === selectedRegion);
@@ -478,7 +492,7 @@ const SelectedCinema = () => {
                     </div>
 
                     {selectedMovie && (
-                      <div className="mt-6" ref={showtimeRef}>
+                      <div className="py-16" ref={showtimeRef}>
                         <h3 className="text-lg font-semibold mb-3">상영 시간</h3>
                         <div className="flex flex-wrap gap-2">
                           {showtimes.map((showtime) => (
@@ -504,14 +518,17 @@ const SelectedCinema = () => {
                               </span>
                             </button>
                           ))}
-                          {selectedShowtime && (
-                            <div className="mt-6 flex justify-end">
-                              <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
-                                예매 정보 확인
-                              </button>
-                            </div>
-                          )}
                         </div>
+                        {selectedShowtime && (
+                          <div className="mt-6 flex justify-end" ref={seatButtonRef}>
+                            <button
+                              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                              onClick={() => setActiveStep(2)}
+                            >
+                              좌석 선택하기
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </>

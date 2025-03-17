@@ -52,7 +52,7 @@ export default function Reservation() {
                   {activeStep === 0 ? (
                     <SelectedMovie setActiveStep={setActiveStep} />
                   ) : activeStep === 1 ? (
-                    <SelectedCinema />
+                    <SelectedCinema setActiveStep={setActiveStep} />
                   ) : activeStep === 2 ? (
                     <SelectedSeat />
                   ) : activeStep === 3 ? (
