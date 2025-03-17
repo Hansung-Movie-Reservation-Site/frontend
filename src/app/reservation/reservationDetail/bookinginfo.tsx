@@ -55,7 +55,6 @@ const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState }) => {
         className="bg-white rounded-lg overflow-hidden shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col"
       >
         <div>
-          {" "}
           <div className="p-4 flex items-center justify-between bg-gray-50">
             <h2 className="text-xl font-bold">예매 정보</h2>
             <button
@@ -82,75 +81,7 @@ const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState }) => {
           <div className="h-px bg-gray-200"></div>
         </div>
 
-        <div className="p-6 overflow-y-auto ">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex flex-col items-center">
-              <Image
-                src={bookingInfo.movie.poster || "/placeholder.svg"}
-                alt={bookingInfo.movie.title}
-                width={200}
-                height={300}
-                className="w-full max-w-[200px] h-auto object-cover rounded-lg shadow"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <h3 className="text-2xl font-bold">{bookingInfo.movie.title}</h3>
-              <p className="text-gray-500">{bookingInfo.movie.englishTitle}</p>
-
-              <div className="h-px bg-gray-200"></div>
-
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">극장</span>
-                  <span className="font-medium">{bookingInfo.theater.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">위치</span>
-                  <span className="font-medium">{bookingInfo.theater.location}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">날짜</span>
-                  <span className="font-medium">{bookingInfo.date}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">시간</span>
-                  <span className="font-medium">
-                    {bookingInfo.showtime.time} ({bookingInfo.showtime.hall})
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">잔여좌석</span>
-                  <span className="font-medium">{bookingInfo.showtime.seats}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">상영시간</span>
-                  <span className="font-medium">
-                    {Math.floor(bookingInfo.movie.runtime / 60)}시간{" "}
-                    {bookingInfo.movie.runtime % 60}분
-                  </span>
-                </div>
-
-                <div className="h-px bg-gray-200 my-2"></div>
-
-                <div className="flex justify-between">
-                  <span className="text-gray-500">선택 좌석</span>
-                  <span className="font-medium">{bookingInfo.selectedSeats}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">인원</span>
-                  <span className="font-medium">{bookingInfo.ticketCount}명</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">결제 금액</span>
-                  <span className="font-bold text-blue-600">
-                    {bookingInfo.totalPrice.toLocaleString()}원
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PaymentContent bookingInfo={bookingInfo}></PaymentContent>
         <div className="h-px bg-gray-200"></div>
         <div className="p-4 flex justify-end bg-gray-50">
           <button
@@ -182,3 +113,100 @@ const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState }) => {
 };
 
 export default BookingInfo;
+
+interface PaymentContentProps {
+  bookingInfo: {
+    theater: {
+      name: string;
+      location: string;
+    };
+    movie: {
+      title: string;
+      englishTitle: string;
+      runtime: number;
+      poster: string;
+    };
+    showtime: {
+      time: string;
+      hall: string;
+      seats: string;
+    };
+    date: string;
+    ticketCount: number;
+    totalPrice: number;
+    selectedSeats: string;
+  };
+}
+
+const PaymentContent = ({ bookingInfo }: PaymentContentProps) => {
+  return (
+    <div className="p-6 overflow-y-auto ">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex flex-col items-center">
+          <Image
+            src={bookingInfo.movie.poster || "/placeholder.svg"}
+            alt={bookingInfo.movie.title}
+            width={200}
+            height={300}
+            className="w-full max-w-[200px] h-auto object-cover rounded-lg shadow"
+          />
+        </div>
+
+        <div className="md:col-span-2">
+          <h3 className="text-2xl font-bold">{bookingInfo.movie.title}</h3>
+          <p className="text-gray-500">{bookingInfo.movie.englishTitle}</p>
+
+          <div className="h-px bg-gray-200"></div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-gray-500">극장</span>
+              <span className="font-medium">{bookingInfo.theater.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">위치</span>
+              <span className="font-medium">{bookingInfo.theater.location}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">날짜</span>
+              <span className="font-medium">{bookingInfo.date}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">시간</span>
+              <span className="font-medium">
+                {bookingInfo.showtime.time} ({bookingInfo.showtime.hall})
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">잔여좌석</span>
+              <span className="font-medium">{bookingInfo.showtime.seats}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">상영시간</span>
+              <span className="font-medium">
+                {Math.floor(bookingInfo.movie.runtime / 60)}시간 {bookingInfo.movie.runtime % 60}분
+              </span>
+            </div>
+
+            <div className="h-px bg-gray-200 my-2"></div>
+
+            <div className="flex justify-between">
+              <span className="text-gray-500">선택 좌석</span>
+              <span className="font-medium">{bookingInfo.selectedSeats}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">인원</span>
+              <span className="font-medium">{bookingInfo.ticketCount}명</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">결제 금액</span>
+              <span className="font-bold text-blue-600">
+                {bookingInfo.totalPrice.toLocaleString()}원
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

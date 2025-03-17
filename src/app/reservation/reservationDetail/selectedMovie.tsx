@@ -1,6 +1,4 @@
 import { TypingText } from "@/app/Common/Animation/typingAni";
-import { ChevronDownIcon } from "@heroicons/react/16/solid";
-import { apiServiceGet } from "@/app/Common/Service/apiService";
 import SerachInput from "../reservationUI/SerachInput";
 
 interface SelectedMovieProps {
