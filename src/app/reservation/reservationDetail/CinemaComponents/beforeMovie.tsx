@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
@@ -59,42 +57,58 @@ const movies = [
   {
     id: 1,
     title: "듄: 파트 2",
-    englishTitle: "Dune: Part Two",
-    rating: 8.9,
-    genre: "SF, 모험",
-    runtime: 166,
-    poster: "/placeholder.svg?height=300&width=200",
-    ageRating: "12",
+    director: "드니 빌뇌브",
+    href: "#",
+    poster_image: "/error.png",
+    imageAlt: "/error.png",
+    movie_id: "1",
+    overview:
+      "아트레이데스 가문의 폴은 사막 행성 아라키스에서 운명을 마주하게 된다. 우주에서 가장 귀중한 자원인 스파이스의 지배권을 두고 벌어지는 은하계 전쟁.",
+    runtime: "166",
+    release_date: "2024-02-28",
+    genres: "genres",
   },
   {
     id: 2,
     title: "파묘",
-    englishTitle: "Exhuma",
-    rating: 7.8,
-    genre: "공포, 미스터리",
-    runtime: 134,
-    poster: "/placeholder.svg?height=300&width=200",
-    ageRating: "15",
+    director: "장재현",
+    href: "#",
+    poster_image: "/error.png",
+    imageAlt: "/error.png",
+    movie_id: "2",
+    overview:
+      "미스터리한 사건을 조사하기 위해 모인 팀이 오래된 묘를 파헤치면서 시작되는 공포스러운 이야기.",
+    runtime: "134",
+    release_date: "2024-02-22",
+    genres: "genres",
   },
   {
     id: 3,
     title: "웡카",
-    englishTitle: "Wonka",
-    rating: 7.2,
-    genre: "판타지, 모험",
-    runtime: 116,
-    poster: "/placeholder.svg?height=300&width=200",
-    ageRating: "ALL",
+    director: "폴 킹",
+    href: "#",
+    poster_image: "/error.png",
+    imageAlt: "/error.png",
+    movie_id: "3",
+    overview:
+      "세계에서 가장 유명한 초콜릿 공장을 세우기 전, 젊은 윌리 웡카의 마법 같은 모험을 그린 판타지 영화.",
+    runtime: "116",
+    release_date: "2023-12-20",
+    genres: "genres",
   },
   {
     id: 4,
     title: "데드풀 & 울버린",
-    englishTitle: "Deadpool & Wolverine",
-    rating: 9.1,
-    genre: "액션, 코미디",
-    runtime: 127,
-    poster: "/placeholder.svg?height=300&width=200",
-    ageRating: "18",
+    director: "숀 레비",
+    href: "#",
+    poster_image: "/error.png",
+    imageAlt: "/error.png",
+    movie_id: "4",
+    overview:
+      "입담과 액션이 넘치는 데드풀이 울버린과 함께 새로운 모험을 떠나는 마블 유니버스의 코믹 액션 영화.",
+    runtime: "127",
+    release_date: "2024-07-26",
+    genres: "genres",
   },
 ];
 
@@ -106,120 +120,12 @@ const showtimes = [
   { id: 5, time: "21:50", seats: "30/150", hall: "2관" },
 ];
 
-interface SelectedMovieProps {
+interface BeforeMovieProps {
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
+  movie: string;
 }
 
-const SelectedCinema: React.FC<SelectedMovieProps> = ({ setActiveStep }) => {
-  // const [cinema, setCinema] = useState({
-  //   region: "",
-  //   theater: "",
-  //   movie: "",
-  //   date: "",
-  //   showtime: "",
-  // });
-  // // Sample data
-  // const regions = [
-  //   { id: 1, name: "서울" },
-  //   { id: 2, name: "경기" },
-  //   { id: 3, name: "인천" },
-  //   { id: 4, name: "부산" },
-  //   { id: 5, name: "대구" },
-  // ];
-
-  // const theaters = [
-  //   {
-  //     id: 1,
-  //     name: "메가박스 강남",
-  //     location: "서울 강남구 역삼동 814-6",
-  //     distance: "1.2km",
-  //     image: "/placeholder.svg?height=100&width=200",
-  //     regionId: 1,
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "CGV 압구정",
-  //     location: "서울 강남구 신사동 602",
-  //     distance: "2.5km",
-  //     image: "/placeholder.svg?height=100&width=200",
-  //     regionId: 1,
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "롯데시네마 월드타워",
-  //     location: "서울 송파구 올림픽로 300",
-  //     distance: "5.8km",
-  //     image: "/placeholder.svg?height=100&width=200",
-  //     regionId: 1,
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "CGV 일산",
-  //     location: "경기도 고양시 일산동구 중앙로 1283",
-  //     distance: "15.2km",
-  //     image: "/placeholder.svg?height=100&width=200",
-  //     regionId: 2,
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "메가박스 부산",
-  //     location: "부산광역시 해운대구 센텀남대로 35",
-  //     distance: "320km",
-  //     image: "/placeholder.svg?height=100&width=200",
-  //     regionId: 4,
-  //   },
-  // ];
-
-  // const movies = [
-  //   {
-  //     id: 1,
-  //     title: "듄: 파트 2",
-  //     englishTitle: "Dune: Part Two",
-  //     rating: 8.9,
-  //     genre: "SF, 모험",
-  //     runtime: 166,
-  //     poster: "/placeholder.svg?height=300&width=200",
-  //     ageRating: "12",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "파묘",
-  //     englishTitle: "Exhuma",
-  //     rating: 7.8,
-  //     genre: "공포, 미스터리",
-  //     runtime: 134,
-  //     poster: "/placeholder.svg?height=300&width=200",
-  //     ageRating: "15",
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "웡카",
-  //     englishTitle: "Wonka",
-  //     rating: 7.2,
-  //     genre: "판타지, 모험",
-  //     runtime: 116,
-  //     poster: "/placeholder.svg?height=300&width=200",
-  //     ageRating: "ALL",
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "데드풀 & 울버린",
-  //     englishTitle: "Deadpool & Wolverine",
-  //     rating: 9.1,
-  //     genre: "액션, 코미디",
-  //     runtime: 127,
-  //     poster: "/placeholder.svg?height=300&width=200",
-  //     ageRating: "18",
-  //   },
-  // ];
-
-  // const showtimes = [
-  //   { id: 1, time: "10:30", seats: "132/150", hall: "1관" },
-  //   { id: 2, time: "13:20", seats: "98/150", hall: "1관" },
-  //   { id: 3, time: "16:10", seats: "45/150", hall: "1관" },
-  //   { id: 4, time: "19:00", seats: "120/150", hall: "2관" },
-  //   { id: 5, time: "21:50", seats: "30/150", hall: "2관" },
-  // ];
+const BeforeMovie: React.FC<BeforeMovieProps> = ({ setActiveStep }) => {
   const [selectedRegion, setSelectedRegion] = useState<number | null>(null);
   const [selectedTheater, setSelectedTheater] = useState<number | null>(null);
   const [selectedMovie, setSelectedMovie] = useState<number | null>(null);
@@ -301,7 +207,6 @@ const SelectedCinema: React.FC<SelectedMovieProps> = ({ setActiveStep }) => {
       }
     }
   }, [selectedTheater]);
-
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       <h1 className="text-3xl font-bold mb-6">영화 예매</h1>
@@ -433,29 +338,16 @@ const SelectedCinema: React.FC<SelectedMovieProps> = ({ setActiveStep }) => {
                           >
                             <div className="relative">
                               <Image
-                                src={movie.poster || "/placeholder.svg"}
-                                alt={movie.title}
+                                src={movie.poster_image}
+                                alt={movie.imageAlt}
                                 width={200}
                                 height={300}
                                 className="w-full h-[250px] object-cover"
                               />
-                              <div
-                                className={`absolute top-2 left-2 px-2 py-1 text-xs font-bold rounded ${
-                                  movie.ageRating === "ALL"
-                                    ? "bg-green-100 text-green-800 border border-green-800"
-                                    : movie.ageRating === "12"
-                                    ? "bg-blue-500 text-white"
-                                    : movie.ageRating === "15"
-                                    ? "bg-yellow-500 text-white"
-                                    : "bg-red-500 text-white"
-                                }`}
-                              >
-                                {movie.ageRating}
-                              </div>
                             </div>
                             <div className="p-3">
                               <h3 className="font-bold text-lg">{movie.title}</h3>
-                              <p className="text-sm text-gray-500">{movie.englishTitle}</p>
+                              <p className="text-sm text-gray-500">{movie.director}</p>
                               <div className="flex items-center mt-2 text-sm">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -465,10 +357,10 @@ const SelectedCinema: React.FC<SelectedMovieProps> = ({ setActiveStep }) => {
                                 >
                                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                 </svg>
-                                {movie.rating}
+                                {movie.release_date}
                               </div>
                               <div className="flex justify-between mt-2 text-sm text-gray-500">
-                                <span>{movie.genre}</span>
+                                <span>{movie.genres}</span>
                                 <div className="flex items-center">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -482,7 +374,8 @@ const SelectedCinema: React.FC<SelectedMovieProps> = ({ setActiveStep }) => {
                                       clipRule="evenodd"
                                     />
                                   </svg>
-                                  {Math.floor(movie.runtime / 60)}시간 {movie.runtime % 60}분
+                                  {Math.floor(Number(movie.runtime) / 60)}시간{" "}
+                                  {Number(movie.runtime) % 60}분
                                 </div>
                               </div>
                             </div>
@@ -549,4 +442,5 @@ const SelectedCinema: React.FC<SelectedMovieProps> = ({ setActiveStep }) => {
     </div>
   );
 };
-export default SelectedCinema;
+
+export default BeforeMovie;

@@ -1,8 +1,6 @@
 "use client";
 import { Disclosure } from "@headlessui/react";
 import { TypingText } from "../../Common/Animation/typingAni";
-import { ProgressBarAni } from "@/app/Common/Animation/motionAni";
-import { useState } from "react";
 // { activeStep, setActiveStep }
 interface ReservationStateProps {
   activeStep: number;
@@ -15,6 +13,10 @@ const ReservationNav = ({ activeStep, setActiveStep }: ReservationStateProps) =>
   function classNames(...classes: (string | boolean | undefined)[]): string {
     return classes.filter(Boolean).join(" ");
   }
+
+  const back = (i: number) => {
+    setActiveStep(i);
+  };
 
   return (
     <Disclosure as="nav" className="bg-white drop-shadow-[0_-6px_10px_rgba(0,0,0,0.1)] py-1">
@@ -45,7 +47,7 @@ const ReservationNav = ({ activeStep, setActiveStep }: ReservationStateProps) =>
                         "px-4 py-3 font-medium m-1",
                         "w-[100px] min-w-[100px] flex justify-center items-center"
                       )}
-                      onClick={() => setActiveStep(i)}
+                      onClick={() => back(i)}
                     >
                       {/* // 클릭 시 해당 step 활성화 */}
                       <TypingText text={item} className=""></TypingText>

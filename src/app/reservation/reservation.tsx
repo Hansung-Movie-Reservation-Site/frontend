@@ -1,19 +1,21 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import ReservationNav from "./reservationUI/reservationNav";
-import SelectedCinema from "./reservationDetail/selectedCinema";
 import SelectedSeat from "./reservationDetail/selectedSeat";
 import SelectedMovie from "./reservationDetail/selectedMovie";
 import { motion, AnimatePresence } from "framer-motion";
 import { TypingText } from "@/app/Common/Animation/typingAni";
 import Payment from "./reservationDetail/payment";
 import { BufferingAni } from "../Common/Animation/motionAni";
-import { ReservationState } from "./reservationDetail/reservationState";
+import { ReservationState } from "./reservationUI/reservationState";
+import BeforeMovie from "./reservationDetail/CinemaComponents/beforeMovie";
 
 export default function Reservation() {
   const [activeStep, setActiveStep] = useState(0); // 현재 활성화된 단계
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
+    console.log(activeStep);
     setIsLoading(true);
     const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
@@ -21,6 +23,11 @@ export default function Reservation() {
 
   const text = "예매하기";
 
+  // 컴포넌트 별 state 변수.
+  const [movie, setMovie] = useState("");
+  // useEffect(() => {
+  //   if (activeStep === 0) setActiveStep(1);
+  // }, [movie]);
   return (
     <>
       <div className="min-h-full">
@@ -50,9 +57,13 @@ export default function Reservation() {
                   transition={{ duration: 0.5, ease: "easeInOut" }} // 더 부드러운 효과 적용
                 >
                   {activeStep === 0 ? (
-                    <SelectedMovie setActiveStep={setActiveStep} />
+                    <SelectedMovie setActiveStep={setActiveStep} setMovie={setMovie} />
                   ) : activeStep === 1 ? (
-                    <SelectedCinema setActiveStep={setActiveStep} />
+                    movie === "" ? (
+                      <BeforeMovie setActiveStep={setActiveStep} movie={movie} />
+                    ) : (
+                      <div>영화 선택 후 영화관 선택</div>
+                    )
                   ) : activeStep === 2 ? (
                     <SelectedSeat />
                   ) : activeStep === 3 ? (
