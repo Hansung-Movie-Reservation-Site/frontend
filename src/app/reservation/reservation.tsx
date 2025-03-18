@@ -75,7 +75,7 @@ export default function Reservation() {
                       <div>영화 선택 후 영화관 선택</div>
                     )
                   ) : activeStep === 2 ? (
-                    <SelectedSeat />
+                    <SelectedSeat movie={movie} cinema={cinema} time={time} />
                   ) : activeStep === 3 ? (
                     <Payment setBookingState={setBookingState} />
                   ) : (
