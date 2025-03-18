@@ -14,20 +14,26 @@ import BeforeMovie from "./reservationDetail/CinemaComponents/beforeMovie";
 export default function Reservation() {
   const [activeStep, setActiveStep] = useState(0); // 현재 활성화된 단계
   const [isLoading, setIsLoading] = useState(false);
+
+  const text = "예매하기";
+
   useEffect(() => {
     console.log(activeStep);
+    console.log(cinema);
+    console.log(time);
     setIsLoading(true);
     const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
   }, [activeStep]);
 
-  const text = "예매하기";
-
   // 컴포넌트 별 state 변수.
-  const [movie, setMovie] = useState("");
-  // useEffect(() => {
-  //   if (activeStep === 0) setActiveStep(1);
-  // }, [movie]);
+  const [movie, setMovie] = useState(-1);
+  const [cinema, setCinema] = useState<{ region: number; theather: number }>({
+    region: -1,
+    theather: -1,
+  });
+  const [time, setTime] = useState<{ date: string; start: string }>({ date: "", start: "" });
+
   return (
     <>
       <div className="min-h-full">
@@ -59,8 +65,13 @@ export default function Reservation() {
                   {activeStep === 0 ? (
                     <SelectedMovie setActiveStep={setActiveStep} setMovie={setMovie} />
                   ) : activeStep === 1 ? (
-                    movie === "" ? (
-                      <BeforeMovie setActiveStep={setActiveStep} movie={movie} />
+                    movie === -1 ? (
+                      <BeforeMovie
+                        setActiveStep={setActiveStep}
+                        setCinema={setCinema}
+                        setMovie={setMovie}
+                        setTime={setTime}
+                      />
                     ) : (
                       <div>영화 선택 후 영화관 선택</div>
                     )

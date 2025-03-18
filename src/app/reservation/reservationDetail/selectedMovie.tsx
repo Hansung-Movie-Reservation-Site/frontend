@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 
 interface SelectedMovieProps {
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
-  setMovie: React.Dispatch<React.SetStateAction<string>>;
+  setMovie: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const boxoffice = [
@@ -74,9 +74,9 @@ const SelectedMovie: React.FC<SelectedMovieProps> = ({ setActiveStep, setMovie }
   // const movieDb = apiServiceGet("v1/movies/fetch");
   // console.log(movieDb);
 
-  const bookingMovie = (title: string) => {
-    console.log(title);
-    setMovie(title);
+  const bookingMovie = (id: number) => {
+    console.log(id);
+    setMovie(id);
     setActiveStep(1);
   };
 
@@ -101,7 +101,7 @@ const SelectedMovie: React.FC<SelectedMovieProps> = ({ setActiveStep, setMovie }
             text={movieList}
             className={"text-2xl font-bold tracking-tight text-gray-900 py-3"}
           ></TypingText>
-          <button onClick={() => setMovie("")}>초기화</button>
+          <button onClick={() => setMovie(-1)}>초기화</button>
           <SerachInput></SerachInput>
 
           <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
@@ -128,7 +128,7 @@ const SelectedMovie: React.FC<SelectedMovieProps> = ({ setActiveStep, setMovie }
                     className="z-1 rounded-md bg-slate-800 py-2 px-4 border border-transparent transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none flex"
                     type="button"
                     aria-label={reserve}
-                    onClick={() => bookingMovie(movie.title)}
+                    onClick={() => bookingMovie(movie.id)}
                   >
                     <div className="w-20 text-center">
                       <TypingText text={reserve} className={"text-md text-white"}></TypingText>

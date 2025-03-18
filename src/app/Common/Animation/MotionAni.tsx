@@ -44,3 +44,14 @@ export const ProgressBarAni = ({
     </div>
   );
 };
+
+export const scrollAni = (ref: React.RefObject<HTMLDivElement | null>) => {
+  setTimeout(() => {
+    if (ref.current) {
+      ref.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, 100);
+};

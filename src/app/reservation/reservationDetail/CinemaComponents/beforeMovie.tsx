@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
-
+import { scrollAni } from "@/app/Common/Animation/motionAni";
+//db에서 region, spot, movie, screening의 start, date 부분 선택.
 // Sample data
 const regions = [
   { id: 1, name: "서울" },
@@ -122,91 +123,64 @@ const showtimes = [
 
 interface BeforeMovieProps {
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
-  movie: string;
+  setCinema: React.Dispatch<React.SetStateAction<{ region: number; theather: number }>>;
+  setMovie: React.Dispatch<React.SetStateAction<number>>;
+  setTime: React.Dispatch<React.SetStateAction<{ date: string; start: string }>>;
 }
 
-const BeforeMovie: React.FC<BeforeMovieProps> = ({ setActiveStep }) => {
-  const [selectedRegion, setSelectedRegion] = useState<number | null>(null);
-  const [selectedTheater, setSelectedTheater] = useState<number | null>(null);
-  const [selectedMovie, setSelectedMovie] = useState<number | null>(null);
-  const [selectedShowtime, setSelectedShowtime] = useState<number | null>(null);
+const BeforeMovie: React.FC<BeforeMovieProps> = ({
+  setActiveStep,
+  setMovie,
+  setTime,
+  setCinema,
+}) => {
+  const [selectedRegion, setSelectedRegion] = useState<number>(-1);
+  const [selectedTheater, setSelectedTheater] = useState<number>(-1);
+  const [selectedMovie, setSelectedMovie] = useState<number>(-1);
+  const [selectedStart, setSelectedStart] = useState<string | "">("");
   const [selectedDate, setSelectedDate] = useState<string>("오늘");
-
-  const handleRegionSelect = (regionId: number) => {
-    setSelectedRegion(regionId);
-    setSelectedTheater(null);
-    setSelectedMovie(null);
-    setSelectedShowtime(null);
-  };
 
   // 영화 목록 컨테이너에 대한 ref 생성
   const movieListRef = useRef<HTMLDivElement>(null);
   const showtimeRef = useRef<HTMLDivElement>(null);
   const seatButtonRef = useRef<HTMLDivElement>(null);
 
+  const handleRegionSelect = (regionId: number) => {
+    setSelectedRegion(regionId);
+    // setSelectedTheater(null);
+    // setSelectedMovie(-1);
+    // setSelectedStart("");
+  };
+
   const handleTheaterSelect = (theaterId: number) => {
     setSelectedTheater(theaterId);
-    setSelectedMovie(null);
-    setSelectedShowtime(null);
-
-    // 모바일에서는 약간의 지연 후 스크롤 (UI가 업데이트될 시간을 주기 위해)
-    setTimeout(() => {
-      // 영화 목록으로 스크롤
-      if (window.innerWidth < 768) {
-        // 모바일 화면에서만
-        movieListRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    }, 100);
+    //setSelectedMovie(null);
+    //setSelectedShowtime(null);
+    if (window.innerWidth >= 768) {
+      scrollAni(movieListRef);
+    }
   };
 
   const handleMovieSelect = (movieId: number) => {
     setSelectedMovie(movieId);
-    setSelectedShowtime(null);
-
+    //setSelectedShowtime(null);
     // 영화 선택 시 약간의 지연 후 상영 시간 섹션으로 스크롤
-    setTimeout(() => {
-      if (showtimeRef.current) {
-        showtimeRef.current.scrollIntoView({
-          behavior: "smooth", // 부드러운 스크롤 애니메이션
-          block: "start", // 요소의 상단으로 스크롤
-        });
-      }
-    }, 100);
+    scrollAni(showtimeRef);
   };
 
-  const handleShowtimeSelect = (showtimeId: number) => {
-    setSelectedShowtime(showtimeId);
-
-    setTimeout(() => {
-      if (seatButtonRef.current) {
-        seatButtonRef.current.scrollIntoView({
-          behavior: "smooth", // 부드러운 스크롤 애니메이션
-          block: "start", // 요소의 상단으로 스크롤
-        });
-      }
-    }, 100);
+  const handleStartSelect = (start: string) => {
+    setSelectedStart(start);
+    scrollAni(seatButtonRef);
+  };
+  const handleCinema = () => {
+    setMovie(selectedMovie);
+    setCinema({ region: selectedRegion, theather: selectedTheater });
+    setTime({ date: selectedDate, start: selectedStart });
+    setActiveStep(2);
   };
 
   const filteredTheaters = theaters.filter((theater) => theater.regionId === selectedRegion);
   const getSelectedTheater = () => theaters.find((theater) => theater.id === selectedTheater);
-  const getSelectedMovie = () => movies.find((movie) => movie.id === selectedMovie);
-  const getSelectedShowtime = () => showtimes.find((showtime) => showtime.id === selectedShowtime);
-
-  // 극장 선택 시 영화 목록으로 스크롤 애니메이션 효과
-  useEffect(() => {
-    if (selectedTheater && movieListRef.current) {
-      // 데스크톱에서는 부드럽게 스크롤
-      if (window.innerWidth >= 768) {
-        movieListRef.current.scrollIntoView({
-          behavior: "smooth", // 부드러운 스크롤 애니메이션
-          block: "start", // 요소의 상단으로 스크롤
-        });
-      }
-    }
-  }, [selectedTheater]);
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       <h1 className="text-3xl font-bold mb-6">영화 예매</h1>
@@ -392,17 +366,17 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({ setActiveStep }) => {
                             <button
                               key={showtime.id}
                               className={`flex flex-col items-center px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
-                                selectedShowtime === showtime.id
+                                selectedStart === showtime.time
                                   ? "bg-blue-500 text-white border-blue-500"
                                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                               }`}
-                              onClick={() => handleShowtimeSelect(showtime.id)}
+                              onClick={() => handleStartSelect(showtime.time)}
                             >
                               <span className="font-bold">{showtime.time}</span>
                               <span className="text-xs">{showtime.hall}</span>
                               <span
                                 className={`text-xs ${
-                                  selectedShowtime === showtime.id
+                                  selectedStart === showtime.time
                                     ? "text-blue-100"
                                     : "text-gray-500"
                                 }`}
@@ -412,11 +386,11 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({ setActiveStep }) => {
                             </button>
                           ))}
                         </div>
-                        {selectedShowtime && (
+                        {selectedStart && (
                           <div className="mt-6 flex justify-end" ref={seatButtonRef}>
                             <button
                               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                              onClick={() => setActiveStep(2)}
+                              onClick={() => handleCinema()}
                             >
                               좌석 선택하기
                             </button>
