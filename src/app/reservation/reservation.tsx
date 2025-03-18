@@ -10,10 +10,12 @@ import Payment from "./reservationDetail/payment";
 import { BufferingAni } from "../Common/Animation/motionAni";
 import { ReservationState } from "./reservationUI/reservationState";
 import BeforeMovie from "./reservationDetail/CinemaComponents/beforeMovie";
+import BookingInfo from "./reservationUI/bookinginfo";
 
 export default function Reservation() {
   const [activeStep, setActiveStep] = useState(0); // 현재 활성화된 단계
   const [isLoading, setIsLoading] = useState(false);
+  const [BookingState, setBookingState] = useState(false);
 
   const text = "예매하기";
 
@@ -42,12 +44,9 @@ export default function Reservation() {
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <header className="bg-white shadow-md">
               <div className="mx-auto max-w-7xl py-4 sm:px-6 lg:px-8 flex items-center justify-between">
-                {/* 왼쪽 정렬된 예매하기 텍스트 */}
                 <h1 className="text-2xl font-normal text-gray-900 font-lato">
                   <TypingText text={text} className="text-2xl font-bold text-gray-900 font-lato" />
                 </h1>
-
-                {/* 중앙 정렬된 ProgressBar */}
                 <div className="flex-1 flex justify-center"></div>
               </div>
             </header>
@@ -78,14 +77,24 @@ export default function Reservation() {
                   ) : activeStep === 2 ? (
                     <SelectedSeat />
                   ) : activeStep === 3 ? (
+                    <Payment setBookingState={setBookingState} />
+                  ) : (
                     <Payment />
-                  ) : null}
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
         </main>
-        <ReservationState activeStep={activeStep}></ReservationState>
+        <ReservationState
+          activeStep={activeStep}
+          setBookingState={setBookingState}
+        ></ReservationState>
+        {BookingState ? (
+          <BookingInfo setBookingState={setBookingState} movie={movie}></BookingInfo>
+        ) : (
+          ""
+        )}
       </div>
     </>
   );

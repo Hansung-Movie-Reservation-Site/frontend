@@ -1,11 +1,15 @@
 import { motion } from "framer-motion";
 import { ProgressBarAni } from "@/app/Common/Animation/motionAni";
-import { useState } from "react";
-import BookingInfo from "./bookinginfo";
 
-export const ReservationState = ({ activeStep }: { activeStep: number }) => {
-  const [BookingState, setBookingState] = useState(false);
+interface ReservationStateProps {
+  activeStep: number;
+  setBookingState: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
+export const ReservationState: React.FC<ReservationStateProps> = ({
+  activeStep,
+  setBookingState,
+}) => {
   return (
     <motion.div
       initial={{ y: "100%" }}
@@ -24,7 +28,6 @@ export const ReservationState = ({ activeStep }: { activeStep: number }) => {
           </span>
         </div>
       </button>
-      {BookingState ? <BookingInfo setBookingState={setBookingState}></BookingInfo> : ""}
     </motion.div>
   );
 };

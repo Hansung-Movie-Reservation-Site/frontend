@@ -1,26 +1,27 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface BookingInfoProps {
   setBookingState: (value: boolean) => void;
+  movie: number;
 }
 
-const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState }) => {
+const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState, movie }) => {
   // 샘플 예매 정보
   const bookingInfo = {
     theater: {
       name: "메가박스 강남",
       location: "서울 강남구 역삼동 814-6",
     },
-    movie: {
-      title: "듄: 파트 2",
-      englishTitle: "Dune: Part Two",
-      runtime: 166,
-      poster: "/placeholder.svg?height=300&width=200",
-    },
+    // movie: {
+    //   title: "듄: 파트 2",
+    //   englishTitle: "Dune: Part Two",
+    //   runtime: 166,
+    //   poster: "/placeholder.svg?height=300&width=200",
+    // },
     showtime: {
       time: "19:00",
       hall: "2관",
@@ -81,7 +82,7 @@ const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState }) => {
           <div className="h-px bg-gray-200"></div>
         </div>
 
-        <PaymentContent bookingInfo={bookingInfo}></PaymentContent>
+        <PaymentContent bookingInfo={bookingInfo} movie={movie}></PaymentContent>
         <div className="h-px bg-gray-200"></div>
         <div className="p-4 flex justify-end bg-gray-50">
           <button
@@ -114,18 +115,136 @@ const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState }) => {
 
 export default BookingInfo;
 
+const regions = [
+  { id: 1, name: "서울" },
+  { id: 2, name: "경기" },
+  { id: 3, name: "인천" },
+  { id: 4, name: "부산" },
+  { id: 5, name: "대구" },
+];
+
+const theaters = [
+  {
+    id: 1,
+    name: "메가박스 강남",
+    location: "서울 강남구 역삼동 814-6",
+    distance: "1.2km",
+    image: "/placeholder.svg?height=100&width=200",
+    regionId: 1,
+  },
+  {
+    id: 2,
+    name: "CGV 압구정",
+    location: "서울 강남구 신사동 602",
+    distance: "2.5km",
+    image: "/placeholder.svg?height=100&width=200",
+    regionId: 1,
+  },
+  {
+    id: 3,
+    name: "롯데시네마 월드타워",
+    location: "서울 송파구 올림픽로 300",
+    distance: "5.8km",
+    image: "/placeholder.svg?height=100&width=200",
+    regionId: 1,
+  },
+  {
+    id: 4,
+    name: "CGV 일산",
+    location: "경기도 고양시 일산동구 중앙로 1283",
+    distance: "15.2km",
+    image: "/placeholder.svg?height=100&width=200",
+    regionId: 2,
+  },
+  {
+    id: 5,
+    name: "메가박스 부산",
+    location: "부산광역시 해운대구 센텀남대로 35",
+    distance: "320km",
+    image: "/placeholder.svg?height=100&width=200",
+    regionId: 4,
+  },
+];
+
+const movies = [
+  {
+    id: 1,
+    title: "듄: 파트 2",
+    director: "드니 빌뇌브",
+    href: "#",
+    poster_image: "/error.png",
+    imageAlt: "/error.png",
+    movie_id: "1",
+    overview:
+      "아트레이데스 가문의 폴은 사막 행성 아라키스에서 운명을 마주하게 된다. 우주에서 가장 귀중한 자원인 스파이스의 지배권을 두고 벌어지는 은하계 전쟁.",
+    runtime: "166",
+    release_date: "2024-02-28",
+    genres: "genres",
+  },
+  {
+    id: 2,
+    title: "파묘",
+    director: "장재현",
+    href: "#",
+    poster_image: "/error.png",
+    imageAlt: "/error.png",
+    movie_id: "2",
+    overview:
+      "미스터리한 사건을 조사하기 위해 모인 팀이 오래된 묘를 파헤치면서 시작되는 공포스러운 이야기.",
+    runtime: "134",
+    release_date: "2024-02-22",
+    genres: "genres",
+  },
+  {
+    id: 3,
+    title: "웡카",
+    director: "폴 킹",
+    href: "#",
+    poster_image: "/error.png",
+    imageAlt: "/error.png",
+    movie_id: "3",
+    overview:
+      "세계에서 가장 유명한 초콜릿 공장을 세우기 전, 젊은 윌리 웡카의 마법 같은 모험을 그린 판타지 영화.",
+    runtime: "116",
+    release_date: "2023-12-20",
+    genres: "genres",
+  },
+  {
+    id: 4,
+    title: "데드풀 & 울버린",
+    director: "숀 레비",
+    href: "#",
+    poster_image: "/error.png",
+    imageAlt: "/error.png",
+    movie_id: "4",
+    overview:
+      "입담과 액션이 넘치는 데드풀이 울버린과 함께 새로운 모험을 떠나는 마블 유니버스의 코믹 액션 영화.",
+    runtime: "127",
+    release_date: "2024-07-26",
+    genres: "genres",
+  },
+];
+
+const showtimes = [
+  { id: 1, time: "10:30", seats: "132/150", hall: "1관" },
+  { id: 2, time: "13:20", seats: "98/150", hall: "1관" },
+  { id: 3, time: "16:10", seats: "45/150", hall: "1관" },
+  { id: 4, time: "19:00", seats: "120/150", hall: "2관" },
+  { id: 5, time: "21:50", seats: "30/150", hall: "2관" },
+];
+
 interface PaymentContentProps {
   bookingInfo: {
     theater: {
       name: string;
       location: string;
     };
-    movie: {
-      title: string;
-      englishTitle: string;
-      runtime: number;
-      poster: string;
-    };
+    // movie: {
+    //   title: string;
+    //   englishTitle: string;
+    //   runtime: number;
+    //   poster: string;
+    // };
     showtime: {
       time: string;
       hall: string;
@@ -136,16 +255,38 @@ interface PaymentContentProps {
     totalPrice: number;
     selectedSeats: string;
   };
+  movie: number;
 }
 
-const PaymentContent = ({ bookingInfo }: PaymentContentProps) => {
+const PaymentContent = ({ bookingInfo, movie }: PaymentContentProps) => {
+  const [movieDetail, setMovieDetail] = useState<{
+    id: number;
+    title: string;
+    director: string;
+    href: string;
+    poster_image: string;
+    imageAlt: string;
+    movie_id: string;
+    overview: string;
+    runtime: string;
+    release_date: string;
+    genres: string;
+  }>();
+  //const getMovie = movies.filter((i) => i.id === movie);
+  useEffect(() => {
+    const getMovie = movies.find((i) => i.id === movie);
+    if (getMovie) {
+      setMovieDetail(getMovie);
+    }
+  }, [movie]); // movie가 변경될 때마다 실행
+
   return (
     <div className="p-6 overflow-y-auto ">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="flex flex-col items-center">
           <Image
-            src={bookingInfo.movie.poster || "/placeholder.svg"}
-            alt={bookingInfo.movie.title}
+            src={movieDetail?.poster_image || "/error.png"}
+            alt={movieDetail?.imageAlt || "/error.png"}
             width={200}
             height={300}
             className="w-full max-w-[200px] h-auto object-cover rounded-lg shadow"
@@ -153,8 +294,7 @@ const PaymentContent = ({ bookingInfo }: PaymentContentProps) => {
         </div>
 
         <div className="md:col-span-2">
-          <h3 className="text-2xl font-bold">{bookingInfo.movie.title}</h3>
-          <p className="text-gray-500">{bookingInfo.movie.englishTitle}</p>
+          <h3 className="text-2xl font-bold">{movieDetail?.title}</h3>
 
           <div className="h-px bg-gray-200"></div>
 
@@ -184,7 +324,8 @@ const PaymentContent = ({ bookingInfo }: PaymentContentProps) => {
             <div className="flex justify-between">
               <span className="text-gray-500">상영시간</span>
               <span className="font-medium">
-                {Math.floor(bookingInfo.movie.runtime / 60)}시간 {bookingInfo.movie.runtime % 60}분
+                {Math.floor(Number(movieDetail?.runtime) / 60)}시간{" "}
+                {Number(movieDetail?.runtime) % 60}분
               </span>
             </div>
 
