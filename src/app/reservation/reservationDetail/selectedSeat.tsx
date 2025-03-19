@@ -135,7 +135,7 @@ interface SelectedSeatProps {
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const SelectedSeat: React.Dispatch<SelectedSeatProps> = ({
+const SelectedSeat: React.FC<SelectedSeatProps> = ({
   setActiveStep,
   setSeats,
   movie,
@@ -248,8 +248,13 @@ const SelectedSeat: React.Dispatch<SelectedSeatProps> = ({
         </div>
         <div className="flex gap-2">
           <button
-            className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
+            className={`px-3 py-1 text-sm border border-gray-300 rounded-md transition-colors ${
+              selectedSeats.length === 0
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "hover:bg-gray-100"
+            }`}
             onClick={handleSeatBack}
+            disabled={selectedSeats.length === 0}
           >
             좌석 초기화
           </button>
@@ -365,7 +370,7 @@ const ViewSeat: React.FC<ViewSeatProps> = ({ selectedSeats, setSelectedSeats }) 
 
   useEffect(() => {
     console.log(selectedSeats);
-    dispatch({ type: "RESET", payload: { row: -1, col: -1 } });
+    if (selectedSeats.length === 0) dispatch({ type: "RESET", payload: { row: -1, col: -1 } });
   }, [selectedSeats]);
 
   // 좌석 선택 처리 함수 수정

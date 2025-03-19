@@ -87,7 +87,7 @@ export default function Reservation() {
                   ) : activeStep === 3 ? (
                     <Payment setBookingState={setBookingState} />
                   ) : (
-                    <Payment />
+                    <div>error</div>
                   )}
                 </motion.div>
               )}
