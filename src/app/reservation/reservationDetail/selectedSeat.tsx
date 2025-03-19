@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { col } from "framer-motion/m";
+import { useState, useEffect, useReducer } from "react";
 
 // 좌석 상태 타입을 단순화
 type SeatStatus = "available" | "occupied" | "selected";
@@ -8,8 +9,6 @@ type SeatStatus = "available" | "occupied" | "selected";
 // 좌석 정보 인터페이스를 단순화
 interface Seat {
   id: string;
-  // row: string;
-  // number: number;
   status: SeatStatus;
 }
 
@@ -21,30 +20,7 @@ const seat = [
   { id: 5, horizontal: "a", vertical: 3, roomid: 3 },
 ];
 
-// 샘플 좌석 데이터 생성 함수를 수정하여 한 줄에 9개의 좌석으로 구성
-// const generateSeats = (): [][] => {
-//   // const rows = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
-//   // const seatsPerRow = 9;
-//   // const seats: Seat[] = [];
-//   // rows.forEach((row) => {
-//   //   for (let i = 1; i <= seatsPerRow; i++) {
-//   //     // 일부 좌석은 이미 예약된 상태로 설정
-//   //     // const isOccupied = Math.random() < 0.3; // 30% 확률로 예약됨
-//   //     // const status = isOccupied ? "occupied" : "available";
-//   //     if(row ==)
-//   //     seats.push({
-//   //       id: `${row}${i}`,
-//   //       row,
-//   //       number: i,
-//   //       status,
-//   //     });
-//   //   }
-//   // });
-//   // return seats;
-//   const seat[9][9];
-// };
-
-interface SelectedSeat {
+interface SelectedSeatProps {
   movie: number;
   cinema: { region: number; theather: number };
   time: { date: string; start: string };
@@ -168,7 +144,7 @@ const showtimes = [
   { id: 5, time: "21:50", seats: "30/150", hall: "2관" },
 ];
 
-const SelectedSeat: React.Dispatch<SelectedSeat> = ({ movie, cinema, time }) => {
+const SelectedSeat: React.Dispatch<SelectedSeatProps> = ({ movie, cinema, time }) => {
   const [movieDetail, setMovieDetail] = useState<{
     id: number;
     title: string;
@@ -202,17 +178,44 @@ const SelectedSeat: React.Dispatch<SelectedSeat> = ({ movie, cinema, time }) => 
     return str.replace(/[a-j]/g, (char) => (char.charCodeAt(0) - 96).toString());
   };
 
-  const [seats, setSeats] = useState(() => {
-    const arraySeats = Array.from({ length: 9 }, () => {
-      return Array(9).fill("available");
+  const replaceNum = (num: number) => {
+    return num.toString().replace(/[0-9]/g, (num) => String.fromCharCode(parseInt(num) + 97));
+  };
+
+  const createSeats = (): State => {
+    const arraySeats = Array.from({ length: 9 }, (_, rowIndex) => {
+      return Array.from({ length: 9 }, (_, colIndex) => ({
+        id: rowIndex * 9 + colIndex,
+        status: "available",
+      }));
     });
     seat.map((s) => {
       const horizontal = Number(replaceAlphabet(s.horizontal));
-      arraySeats[horizontal][s.vertical] = "occupied";
+      arraySeats[horizontal][s.vertical].status = "occupied";
     });
     return arraySeats;
-  });
-  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  };
+  type State = Seat[][];
+  type Action = {
+    payload: { row: number; col: number };
+  };
+
+  const seatReducer = (state: State, action: Action): State => {
+    const { row, col } = action.payload;
+    return state.map((seatRow, rowIndex) =>
+      rowIndex === row
+        ? seatRow.map((seat, colIndex) =>
+            colIndex === col
+              ? { ...seat, status: seat.status === "available" ? "selected" : "available" }
+              : seat
+          )
+        : seatRow
+    );
+  };
+
+  const [seats, dispatch] = useReducer(seatReducer, [], createSeats);
+
+  const [selectedSeats, setSelectedSeats] = useState<{ row: string; col: number }[]>([]);
   const [maxSelectableSeats] = useState(4); // 최대 선택 가능 좌석 수
 
   // 좌석 선택 처리 함수 수정
@@ -220,24 +223,7 @@ const SelectedSeat: React.Dispatch<SelectedSeat> = ({ movie, cinema, time }) => 
     if (seat.status === "occupied") {
       return; // 이미 예약된 좌석은 클릭 무시
     }
-
-    // setSeats((prevSeats) => {
-    //   return prevSeats.map((s) => {
-    //     if (s.id === seat.id) {
-    //       // 이미 선택된 좌석이면 선택 해제
-    //       if (s.status === "selected") {
-    //         setSelectedSeats((prev) => prev.filter((id) => id !== s.id));
-    //         return { ...s, status: "available" };
-    //       }
-    //       // 새로 선택하는 경우, 최대 선택 가능 좌석 수 확인
-    //       else if (selectedSeats.length < maxSelectableSeats) {
-    //         setSelectedSeats((prev) => [...prev, s.id]);
-    //         return { ...s, status: "selected" };
-    //       }
-    //     }
-    //     return s;
-    //   });
-    // });
+    seat.status = "selected";
   };
 
   // 뒤로 가기 처리
@@ -285,6 +271,7 @@ const SelectedSeat: React.Dispatch<SelectedSeat> = ({ movie, cinema, time }) => 
         </button>
         <h1 className="text-3xl font-bold">좌석 선택</h1>
       </div>
+      {/* 좌석 선택 */}
 
       <div className="bg-gray-100 p-4 rounded-lg mb-6">
         <div className="flex flex-wrap justify-between items-center">
@@ -296,13 +283,15 @@ const SelectedSeat: React.Dispatch<SelectedSeat> = ({ movie, cinema, time }) => 
           </div>
           <div className="text-sm">
             <span className="font-medium">선택한 좌석:</span>{" "}
-            {selectedSeats.length > 0 ? selectedSeats.sort().join(", ") : "없음"}
+            {selectedSeats.length > 0
+              ? selectedSeats.sort().map((seat) => "[" + seat.row + " , " + seat.col + "] ")
+              : "없음"}
           </div>
         </div>
       </div>
+      {/* 영화 정보 */}
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        {/* 스크린 */}
         <div className="w-full mb-10 relative">
           <div className="h-8 bg-gray-300 rounded-lg w-4/5 mx-auto flex items-center justify-center text-gray-600 text-sm font-medium shadow-md transform perspective-500 rotateX-10">
             SCREEN
@@ -312,28 +301,33 @@ const SelectedSeat: React.Dispatch<SelectedSeat> = ({ movie, cinema, time }) => 
 
         {/* 좌석 그리드 */}
         <div className="grid grid-cols-9 gap-1 max-w-3xl mx-auto mb-8">
-          {seats.map((seat, i) => (
-            <div
-              key={i}
-              // className={`
-              //   w-10 h-10 flex items-center justify-center text-sm font-medium rounded-md cursor-pointer transition-colors
-              //   ${seat.status === "available" ? "bg-gray-200 hover:bg-blue-200 text-gray-700" : ""}
-              //   ${seat.status === "occupied" ? "bg-gray-400 text-gray-200 cursor-not-allowed" : ""}
-              //   ${seat.status === "selected" ? "bg-blue-500 text-white" : ""}
-              // `}
-              // onClick={() => handleSeatClick(seat)}
-            >
-              {seat.map((s, j) => (
+          {seats.map((seat, rowIndex) => (
+            <div key={rowIndex}>
+              {seat.map((s, colIndex) => (
                 <div
-                  key={j}
+                  key={colIndex}
                   className={`
                 w-10 h-10 flex items-center justify-center text-sm font-medium rounded-md cursor-pointer transition-colors
-                ${s === "available" ? "bg-gray-200 hover:bg-blue-200 text-gray-700" : ""}
-                ${s === "occupied" ? "bg-gray-400 text-gray-200 cursor-not-allowed" : ""}
-                ${s === "selected" ? "bg-blue-500 text-white" : ""}
+                ${s.status === "available" ? "bg-gray-200 hover:bg-blue-200 text-gray-700" : ""}
+                ${s.status === "occupied" ? "bg-gray-400 text-gray-200 cursor-not-allowed" : ""}
+                ${s.status === "selected" ? "bg-blue-500 text-white" : ""}
               `}
+                  onClick={() => {
+                    const getSelectedSeats = [...selectedSeats];
+                    if (s.status === "available") {
+                      if (selectedSeats.length === 4) return;
+                      getSelectedSeats.push({ row: replaceNum(rowIndex), col: colIndex });
+                      setSelectedSeats(getSelectedSeats);
+                    } else if (s.status === "selected") {
+                      const newSelectedSeats = getSelectedSeats.filter(
+                        (s) => !(s.row == replaceNum(rowIndex) && s.col == colIndex)
+                      );
+                      setSelectedSeats(newSelectedSeats);
+                    }
+                    dispatch({ payload: { row: rowIndex, col: colIndex } });
+                  }}
                 >
-                  {i}
+                  {colIndex}
                 </div>
               ))}
             </div>
@@ -356,6 +350,7 @@ const SelectedSeat: React.Dispatch<SelectedSeat> = ({ movie, cinema, time }) => 
           </div>
         </div>
       </div>
+      {/* 스크린 */}
 
       <div className="bg-white rounded-lg shadow-md p-4 flex flex-wrap items-center justify-between">
         <div>
@@ -391,6 +386,7 @@ const SelectedSeat: React.Dispatch<SelectedSeat> = ({ movie, cinema, time }) => 
           </button>
         </div>
       </div>
+      {/* 선택완료 버튼 */}
     </div>
   );
 };
