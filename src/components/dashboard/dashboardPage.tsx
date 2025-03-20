@@ -58,7 +58,19 @@ export default function DashboardPage() {
         console.log("대시보드 - 사용자 정보 확인:", storedUser)
 
         if (storedUser) {
-          setUser(storedUser)
+          // userDetailDTO 형식으로 저장된 경우 처리
+          if (storedUser.userDetailDTO) {
+            const updatedUser = {
+              email: storedUser.userDetailDTO.email,
+              username: storedUser.userDetailDTO.username,
+              user_id: storedUser.userDetailDTO.user_id,
+            }
+            localStorage.setItem("user", JSON.stringify(updatedUser))
+            sessionStorage.setItem("user", JSON.stringify(updatedUser))
+            setUser(updatedUser)
+          } else {
+            setUser(storedUser)
+          }
           setLoading(false)
         } else {
           // 사용자 정보가 없지만 토큰이 있는 경우, 기본 사용자 정보 생성

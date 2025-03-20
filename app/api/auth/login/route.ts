@@ -22,10 +22,11 @@ export async function POST(request: Request) {
 
       console.log("Spring Boot 서버 응답:", springResponse.data)
 
-      // 스프링부트 서버 응답에 사용자 이름이 없는 경우 추가
-      if (springResponse.data.code === "SUCCESS" && !springResponse.data.username) {
-        // 이메일에서 사용자 이름 추출 (임시 방편)
-        springResponse.data.username = email.split("@")[0]
+      // 스프링부트 서버 응답에 사용자 이름이 없는 경우 추가 부분 수정
+      // 이제 userDetailDTO 객체에서 사용자 정보를 확인
+      if (springResponse.data.code === "SUCCESS" && springResponse.data.userDetailDTO) {
+        // 응답 구조 유지
+        console.log("사용자 정보:", springResponse.data.userDetailDTO)
       }
 
       return NextResponse.json(springResponse.data)

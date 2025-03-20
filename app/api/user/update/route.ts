@@ -4,7 +4,7 @@ import axios from "axios"
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { field, value, currentPassword, newPassword, email } = body
+    const { field, value, currentPassword, email } = body
 
     console.log("사용자 정보 업데이트 요청:", {
       field,
@@ -36,24 +36,34 @@ export async function POST(request: Request) {
     }
 
     // 스프링부트 API 요청 데이터 구성
-    // 스프링부트 API가 기대하는 정확한 형식으로 데이터 구성
+    // 새로운 API 엔드포인트 형식에 맞게 데이터 구성
     const requestData = {
-      object: field, // 변경할 대상 (username, email, password)
-      email: email, // 사용자 이메일
-      password: currentPassword, // 현재 비밀번호
-      after: field === "password" ? value : value, // 변경할 새 값
+      email: email,
+      password: currentPassword,
+      after: value
+    }
+
+    // 필드에 따라 다른 API 엔드포인트 사용
+    let apiEndpoint = ""
+    if (field === "username") {
+      apiEndpoint = "http://localhost:8080/api/v1/detail/change/username"
+    } else if (field === "password") {
+      apiEndpoint = "http://localhost:8080/api/v1/detail/change/password"
+    } else if (field === "email") {
+      apiEndpoint = "http://localhost:8080/api/v1/detail/change/email"
+    } else {
+      return NextResponse.json({ success: false, message: "지원하지 않는 필드입니다." }, { status: 400 })
     }
 
     console.log("스프링부트 API 요청 데이터:", {
-      object: requestData.object,
+      endpoint: apiEndpoint,
       email: requestData.email,
       hasPassword: !!requestData.password,
       afterLength: requestData.after ? requestData.after.length : 0,
-      afterValue: requestData.after, // 실제 값 로깅 (개발 환경에서만 사용)
     })
 
     // 스프링부트 API 호출
-    const springResponse = await axios.post("http://localhost:8080/api/v1/detail/change", requestData, {
+    const springResponse = await axios.post(apiEndpoint, requestData, {
       headers: {
         "Content-Type": "application/json",
         Accept: "*/*",
@@ -74,8 +84,7 @@ export async function POST(request: Request) {
         code: "ERROR",
         message: error.response?.data?.message || "현재 비밀번호가 일치하지 않습니다.",
       },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }
-

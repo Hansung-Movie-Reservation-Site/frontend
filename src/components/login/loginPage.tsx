@@ -16,8 +16,8 @@ export default function LoginPage() {
     const user = localStorage.getItem("user")
 
     if (token && user) {
-      console.log("이미 로그인되어 있습니다. 대시보드로 이동합니다.")
-      router.push("/dashboard")
+      console.log("이미 로그인되어 있습니다. 홈 화면으로 이동합니다.")
+      router.push("/")
     }
   }, [router])
 
@@ -39,12 +39,11 @@ export default function LoginPage() {
         localStorage.setItem("token", token)
         sessionStorage.setItem("token", token)
 
-        // 사용자 정보 저장
+        // 사용자 정보 저장 - 새로운 응답 구조 반영
         const userData = {
-          email: email,
-          // 스프링부트 응답에서 사용자 이름 추출 (응답 구조에 따라 조정 필요)
-          username:
-            response.username || response.data?.username || response.name || response.data?.name || email.split("@")[0],
+          email: response.userDetailDTO?.email || email,
+          username: response.userDetailDTO?.username || email.split("@")[0],
+          user_id: response.userDetailDTO?.user_id || 0,
         }
 
         console.log("저장할 사용자 정보:", userData)
@@ -52,11 +51,11 @@ export default function LoginPage() {
         sessionStorage.setItem("user", JSON.stringify(userData))
 
         // 쿠키에도 저장 (추가적인 보안 조치)
-        document.cookie = `auth_token=${token}; path=/; max-age=86400` // 1일 유효
+        document.cookie = `auth_token=${token}; path=/; max-age=600` // 10분 유효
 
         // 약간의 지연 후 리디렉션 (스토리지 저장 완료를 위해)
         setTimeout(() => {
-          router.push("/dashboard")
+          router.push("/") // 로그인 성공 후 홈 화면으로 이동
         }, 100)
       } else {
         setError("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.")
