@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import movieListSliceReducer from "./redux"; // ✅ 정확한 경로 확인!
+import { movieListSlicesReducer, regionListSlicesReducer, theaterListSlicesReducer } from "./redux"; // ✅ 정확한 경로 확인!
 
 const store = configureStore({
   reducer: {
-    movieList: movieListSliceReducer,
+    movieList: movieListSlicesReducer,
+    regionList: regionListSlicesReducer,
+    theaterList: theaterListSlicesReducer,
   },
 });
 

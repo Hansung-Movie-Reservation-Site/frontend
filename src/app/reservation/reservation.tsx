@@ -18,7 +18,9 @@ export default function Reservation() {
   const [activeStep, setActiveStep] = useState(0); // 현재 활성화된 단계
   const [isLoading, setIsLoading] = useState(false);
   const [BookingState, setBookingState] = useState(false);
+  const text = "예매하기";
 
+  // 🚨서버에서 데이터 가져오기 🚨
   const { movieList, updateMovieList } = useReduxBoxoffice();
   const fetchMovieList = async () => {
     try {
@@ -29,12 +31,12 @@ export default function Reservation() {
       console.log(error);
     }
   };
-  const text = "예매하기";
-
   useEffect(() => {
     fetchMovieList();
   }, []);
+  // 🚨서버에서 데이터 가져오기 🚨
 
+  // 🚨activeStep의 값변화에 따른 UI 관리: 경우의 수는 0,1,2,3 🚨
   useEffect(() => {
     console.log(activeStep);
     console.log(cinema);
@@ -43,15 +45,15 @@ export default function Reservation() {
     const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
   }, [activeStep]);
+  // 🚨activeStep의 값변화에 따른 UI 관리. 🚨
 
-  // 컴포넌트 별 state 변수.
+  // 결제에 필요한 state 변수.
   const [movie, setMovie] = useState(-1);
   const [cinema, setCinema] = useState<{ region: number; theather: number }>({
     region: -1,
     theather: -1,
   });
   const [time, setTime] = useState<{ date: string; start: string }>({ date: "", start: "" });
-
   const [seats, setSeats] = useState<{ row: string; col: number }[]>([]);
 
   return (

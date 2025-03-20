@@ -23,3 +23,13 @@ export const useReduxBoxoffice = () => {
   };
   return { movieList, updateMovieList };
 };
+
+export const useRegion = () => {
+  const regionList = useSelector((state: RootState) => state.regionList.regions);
+  return regionList;
+};
+
+export const useTheather = () => {
+  const theaterList = useSelector((state: RootState) => state.theaterList.theaters);
+  return theaterList;
+};
