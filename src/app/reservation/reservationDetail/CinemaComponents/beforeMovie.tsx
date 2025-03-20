@@ -57,7 +57,27 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   const [selectedTheater, setSelectedTheater] = useState<number>();
   const [selectedMovie, setSelectedMovie] = useState<number>(-1);
   const [selectedStart, setSelectedStart] = useState<string | "">("");
-  const [selectedDate, setSelectedDate] = useState<string>("오늘");
+  const [selectedDate, setSelectedDate] = useState<string>();
+
+  const getWeekDates = () => {
+    const today = new Date();
+    const dates = [];
+
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(today);
+      currentDate.setDate(today.getDate() + i);
+
+      const yyyy = currentDate.getFullYear();
+      const mm = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const dd = String(currentDate.getDate()).padStart(2, "0");
+
+      dates.push(`${yyyy}-${mm}-${dd}`);
+    }
+
+    return dates;
+  };
+
+  console.log(getWeekDates());
 
   // 영화 목록 컨테이너에 대한 ref 생성
   const movieListRef = useRef<HTMLDivElement>(null);
@@ -66,15 +86,10 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
 
   const handleRegionSelect = (regionId: number) => {
     setSelectedRegion(regionId);
-    // setSelectedTheater(null);
-    // setSelectedMovie(-1);
-    // setSelectedStart("");
   };
 
   const handleTheaterSelect = (theaterId: number) => {
     setSelectedTheater(theaterId);
-    //setSelectedMovie(null);
-    //setSelectedShowtime(null);
     if (window.innerWidth >= 768) {
       scrollAni(movieListRef);
     }
@@ -82,8 +97,7 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
 
   const handleMovieSelect = (movieId: number) => {
     setSelectedMovie(movieId);
-    //setSelectedShowtime(null);
-    // 영화 선택 시 약간의 지연 후 상영 시간 섹션으로 스크롤
+    // 여기서 스크린 상영정보 api 통신 추가.
     scrollAni(showtimeRef);
   };
 
@@ -106,7 +120,6 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
       <h1 className="text-3xl font-bold mb-6">영화 예매</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left column: Region and Theater selection */}
         <div className="space-y-6">
           <div>
             <h2 className="text-xl font-semibold mb-3">지역 선택</h2>
@@ -195,9 +208,13 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
                           onChange={(e) => setSelectedDate(e.target.value)}
                           className="appearance-none bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
-                          <option value="오늘">오늘 (3월 16일)</option>
-                          <option value="내일">내일 (3월 17일)</option>
-                          <option value="모레">모레 (3월 18일)</option>
+                          {getWeekDates().map((date: string, i: number) => {
+                            return (
+                              <option key={i} value="오늘">
+                                {date}
+                              </option>
+                            );
+                          })}
                         </select>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                           <svg
