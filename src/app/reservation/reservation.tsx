@@ -11,36 +11,15 @@ import { BufferingAni } from "../Common/Animation/motionAni";
 import { ReservationState } from "./reservationUI/reservationState";
 import BeforeMovie from "./reservationDetail/CinemaComponents/beforeMovie";
 import BookingInfo from "./reservationUI/bookinginfo";
-import { AppDispatch } from "@/redux/store";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-import { setMovieList } from "@/redux/redux";
 import { fetchBoxofficeGet } from "../Common/Service/apiService";
+import { useReduxBoxoffice } from "@/redux/reduxService";
 
 export default function Reservation() {
   const [activeStep, setActiveStep] = useState(0); // 현재 활성화된 단계
   const [isLoading, setIsLoading] = useState(false);
   const [BookingState, setBookingState] = useState(false);
 
-  const dispatch: AppDispatch = useDispatch();
-  const getMovieData = useSelector((state: RootState) => state.movieList);
-
-  const updateMovieList = (
-    newMovieList: {
-      id: number;
-      tmdbMovieId: number;
-      kobisMovieCd: string;
-      title: string;
-      posterImage: string;
-      overview: string;
-      director: string;
-      genres: string;
-      releaseDate: string;
-      runtime: number;
-    }[]
-  ) => {
-    dispatch(setMovieList(newMovieList));
-  };
+  const { movieList, updateMovieList } = useReduxBoxoffice();
   const fetchMovieList = async () => {
     try {
       const data = await fetchBoxofficeGet();
