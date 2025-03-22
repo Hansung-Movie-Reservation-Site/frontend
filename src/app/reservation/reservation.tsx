@@ -29,6 +29,7 @@ export default function Reservation() {
       updateMovieList(data);
     } catch (error) {
       console.log(error);
+      updateMovieList([]);
     }
   };
   useEffect(() => {

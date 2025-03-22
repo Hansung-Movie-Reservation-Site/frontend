@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { scrollAni } from "@/app/Common/Animation/motionAni";
 import { useRegion, useTheather } from "@/redux/reduxService";
 import { useReduxBoxoffice } from "@/redux/reduxService";
+import { fetchSpotAndDate } from "@/app/Common/Service/apiService";
 //db에서 region, spot, movie, screening의 start, date 부분 선택.
 // Sample data
 
@@ -50,7 +51,7 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   setCinema,
 }) => {
   const regions = useRegion();
-  const theaters = useTheather();
+  const { theaterList, findTheaterId } = useTheather();
   const { movieList } = useReduxBoxoffice();
 
   const [selectedRegion, setSelectedRegion] = useState<number>();
@@ -77,8 +78,6 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
     return dates;
   };
 
-  console.log(getWeekDates());
-
   // 영화 목록 컨테이너에 대한 ref 생성
   const movieListRef = useRef<HTMLDivElement>(null);
   const showtimeRef = useRef<HTMLDivElement>(null);
@@ -87,8 +86,9 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   const handleRegionSelect = (regionId: number) => {
     setSelectedRegion(regionId);
   };
+  const [s, setS] = useState();
 
-  const handleTheaterSelect = (theaterId: number) => {
+  const handleTheaterSelect = async (theaterId: number) => {
     setSelectedTheater(theaterId);
     if (window.innerWidth >= 768) {
       scrollAni(movieListRef);
@@ -98,6 +98,7 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   const handleMovieSelect = (movieId: number) => {
     setSelectedMovie(movieId);
     // 여기서 스크린 상영정보 api 통신 추가.
+
     scrollAni(showtimeRef);
   };
 
@@ -112,9 +113,46 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
     setTime({ date: selectedDate, start: selectedStart });
     setActiveStep(2);
   };
+  const filteredTheaters = theaterList.filter((theater) => theater.region_id === selectedRegion);
+  const getSelectedTheater = () => theaterList.find((theater) => theater.id === selectedTheater);
 
-  const filteredTheaters = theaters.filter((theater) => theater.region_id === selectedRegion);
-  const getSelectedTheater = () => theaters.find((theater) => theater.id === selectedTheater);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (selectedDate === undefined) return;
+
+        const theather = getSelectedTheater();
+        if (theather == undefined) return; // theather가 undefined일 경우 처리
+
+        console.log(selectedDate);
+        console.log(theather.name);
+        const data = await fetchSpotAndDate(theather.name, selectedDate);
+        console.log(data);
+        const screen: {
+          id: number;
+
+          romnumber: number;
+          start: string;
+          runtime: number;
+          tmdbMovieId: number;
+        }[] = [];
+        for (let i = 0; i < data.length; i++) {
+          screen.push({
+            id: data[i].id,
+            romnumber: data[i].room.romnumber,
+            start: data[i].start,
+            runtime: data[i].movie.runtime,
+            tmdbMovieId: data[i].tmdbMovieId,
+          });
+        }
+        setS(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, [selectedDate]);
+
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       <h1 className="text-3xl font-bold mb-6">영화 예매</h1>
@@ -208,9 +246,12 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
                           onChange={(e) => setSelectedDate(e.target.value)}
                           className="appearance-none bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
+                          <option key={0} value={"날짜선택"}>
+                            날짜선택
+                          </option>
                           {getWeekDates().map((date: string, i: number) => {
                             return (
-                              <option key={i} value="오늘">
+                              <option key={i} value={date}>
                                 {date}
                               </option>
                             );

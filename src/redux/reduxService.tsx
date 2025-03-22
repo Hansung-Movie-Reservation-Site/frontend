@@ -31,5 +31,8 @@ export const useRegion = () => {
 
 export const useTheather = () => {
   const theaterList = useSelector((state: RootState) => state.theaterList.theaters);
-  return theaterList;
+  const findTheaterId = (theaterId: number) => {
+    return theaterList.find((t) => t.id == theaterId);
+  };
+  return { theaterList, findTheaterId };
 };
