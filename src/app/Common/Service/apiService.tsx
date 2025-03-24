@@ -97,20 +97,10 @@ export const fetchBoxofficeGet = async () => {
         err.response?.data?.message ||
           "서버에 연결할 수 없습니다. Spring Boot 서버가 실행 중인지 확인하세요."
       );
-      // console.log(
-      //   err.response?.data?.message ||
-      //     "서버에 연결할 수 없습니다. Spring Boot 서버가 실행 중인지 확인하세요."
-      // );
     } else if (err instanceof Error) {
       throw new Error(err.message);
-      // console.log(
-      //   err.message || "서버에 연결할 수 없습니다. Spring Boot 서버가 실행 중인지 확인하세요."
-      // );
     } else {
       throw new Error("알 수 없는 오류가 발생했습니다.");
-      // console.log(
-      //   "서버에 연결할 수 없습니다. Spring Boot 서버가 실행 중인지 확인하세요."
-      // );
     }
   }
 };
@@ -156,6 +146,36 @@ export const fetchSpotAndDate = async (spot: string, date: string, movie_id: num
       // console.log(
       //   "서버에 연결할 수 없습니다. Spring Boot 서버가 실행 중인지 확인하세요."
       // );
+    }
+  }
+};
+
+export const fetchSeat = async (screening_id: number) => {
+  if (screening_id === undefined) return;
+  try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Accept: "*/*",
+    };
+
+    const response = await axios.get(`${API_BASE_URL}/v1/screening/${screening_id}/seats`, {
+      headers,
+      withCredentials: true,
+    });
+
+    return response.data;
+  } catch (err: unknown) {
+    console.error("Error details:", err);
+
+    if (axios.isAxiosError(err)) {
+      throw new Error(
+        err.response?.data?.message ||
+          "서버에 연결할 수 없습니다. Spring Boot 서버가 실행 중인지 확인하세요."
+      );
+    } else if (err instanceof Error) {
+      throw new Error(err.message);
+    } else {
+      throw new Error("알 수 없는 오류가 발생했습니다.");
     }
   }
 };

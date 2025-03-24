@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { scrollAni } from "@/app/Common/Animation/motionAni";
-import { useRegion, useTheather, useMovieRunningDetail } from "@/redux/reduxService";
-import { useReduxBoxoffice } from "@/redux/reduxService";
+import {
+  useRegion,
+  useTheather,
+  useMovieRunningDetail,
+  useReduxBoxoffice,
+} from "@/redux/reduxService";
 import { fetchSpotAndDate } from "@/app/Common/Service/apiService";
 import { Movie, Region, Theater, MovieRunningDetail } from "../../typeReserve";
 import { calcFinishTime } from "@/app/Common/Service/timeClacService";
