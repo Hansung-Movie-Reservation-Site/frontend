@@ -5,6 +5,7 @@ import { useRegion, useTheather, useMovieRunningDetail } from "@/redux/reduxServ
 import { useReduxBoxoffice } from "@/redux/reduxService";
 import { fetchSpotAndDate } from "@/app/Common/Service/apiService";
 import { Movie, Region, Theater, MovieRunningDetail } from "../../typeReserve";
+import { calcFinishTime } from "@/app/Common/Service/timeClacService";
 //db에서 region, spot, movie, screening의 start, date 부분 선택.
 // Sample data
 
@@ -12,25 +13,29 @@ interface BeforeMovieProps {
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
   setCinema: React.Dispatch<React.SetStateAction<{ region: number; theather: number }>>;
   setMovie: React.Dispatch<React.SetStateAction<number>>;
-  setTime: React.Dispatch<React.SetStateAction<{ date: string; start: string }>>;
+  setRoom: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const BeforeMovie: React.FC<BeforeMovieProps> = ({
   setActiveStep,
   setMovie,
-  setTime,
+  setRoom,
   setCinema,
 }) => {
-  const regions = useRegion();
-  const { theaterList, findTheaterId } = useTheather();
-  const { movieList, findMovie } = useReduxBoxoffice();
-
   const [selectedRegion, setSelectedRegion] = useState<number>();
   const [selectedTheater, setSelectedTheater] = useState<number>();
   const [selectedMovie, setSelectedMovie] = useState<number>();
-  const [selectedStart, setSelectedStart] = useState<number>();
+  const [selectedRoom, setSelectedRoom] = useState<number>();
   const [selectedDate, setSelectedDate] = useState<string>();
   const [finishTimes, setFinishTimes] = useState<string[]>([]);
+
+  const regions = useRegion();
+  const { theaterList, findTheaterId } = useTheather();
+  const { movieList, findMovie } = useReduxBoxoffice();
+  const { movieRunningDetail, updateMovieRunningDetail } = useMovieRunningDetail();
+
+  const filteredTheaters = theaterList.filter((theater) => theater.region_id === selectedRegion);
+  const getSelectedTheater = () => theaterList.find((theater) => theater.id === selectedTheater);
   const getWeekDates = () => {
     const today = new Date();
     const dates = [];
@@ -57,8 +62,6 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   const handleRegionSelect = (regionId: number) => {
     setSelectedRegion(regionId);
   };
-  //const [movieRunningList, setMovieRunningList] = useState();
-  const { movieRunningDetail, updateMovieRunningDetail } = useMovieRunningDetail();
 
   const handleTheaterSelect = async (theaterId: number) => {
     setSelectedTheater(theaterId);
@@ -72,22 +75,17 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
     // 여기서 스크린 상영정보 api 통신 추가.
   };
 
-  const handleStartSelect = (start: number) => {
-    setSelectedStart(start);
+  const handleStartSelect = (room_id: number) => {
+    setSelectedRoom(room_id);
     scrollAni(seatButtonRef);
   };
-  // const inspectMovie = () =>{
-  //   if()
-  // }
   const handleCinema = () => {
     if (selectedMovie !== undefined) setMovie(selectedMovie);
     if (selectedRegion != undefined && selectedTheater != undefined)
       setCinema({ region: selectedRegion, theather: selectedTheater });
-    setTime({ date: selectedDate, start: selectedStart });
+    if (selectedDate != undefined && selectedRoom != undefined) setRoom(selectedRoom);
     setActiveStep(2);
   };
-  const filteredTheaters = theaterList.filter((theater) => theater.region_id === selectedRegion);
-  const getSelectedTheater = () => theaterList.find((theater) => theater.id === selectedTheater);
 
   const fetchData = async () => {
     try {
@@ -112,19 +110,6 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
     if (selectedDate === "날짜선택") return;
     fetchData();
   }, [selectedDate]);
-
-  const convertTime = (time: number) => {
-    const hours = Math.floor(time / 60);
-    const minutes = Math.floor(time % 60);
-
-    return `  ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
-  };
-  const calcFinishTime = (start: string, runtime: number) => {
-    const s = start.split(":").map(Number);
-    const convert = s[0] * 60 + s[1];
-    const result = convert + runtime;
-    return convertTime(result);
-  };
 
   useEffect(() => {
     scrollAni(showtimeRef);
@@ -333,7 +318,7 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
                             <button
                               key={roomId}
                               className={`flex flex-col items-center px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
-                                selectedStart === roomId
+                                selectedRoom === roomId
                                   ? "bg-blue-500 text-white border-blue-500"
                                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                               }`}
@@ -353,7 +338,7 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
                             </button>
                           ))}
                         </div>
-                        {selectedStart && (
+                        {selectedRoom && (
                           <div className="mt-6 flex justify-end" ref={seatButtonRef}>
                             <button
                               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"

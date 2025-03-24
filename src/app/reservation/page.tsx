@@ -41,7 +41,6 @@ export default function Reservation() {
   useEffect(() => {
     console.log(activeStep);
     console.log(cinema);
-    console.log(time);
     setIsLoading(true);
     const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
@@ -54,7 +53,7 @@ export default function Reservation() {
     region: -1,
     theather: -1,
   });
-  const [time, setTime] = useState<{ date: string; start: string }>({ date: "", start: "" });
+  const [room, setRoom] = useState<number>(0);
   const [seats, setSeats] = useState<{ row: string; col: number }[]>([]);
 
   return (
@@ -90,7 +89,7 @@ export default function Reservation() {
                         setActiveStep={setActiveStep}
                         setCinema={setCinema}
                         setMovie={setMovie}
-                        setTime={setTime}
+                        setRoom={setRoom}
                       />
                     ) : (
                       <div>영화 선택 후 영화관 선택</div>
@@ -101,7 +100,7 @@ export default function Reservation() {
                       setSeats={setSeats}
                       movie={movie}
                       cinema={cinema}
-                      time={time}
+                      room={room}
                     />
                   ) : activeStep === 3 ? (
                     <Payment setBookingState={setBookingState} />

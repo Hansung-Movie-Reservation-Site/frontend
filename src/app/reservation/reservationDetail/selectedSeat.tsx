@@ -53,65 +53,6 @@ const theaters = [
   },
 ];
 
-const movies = [
-  {
-    id: 1,
-    title: "듄: 파트 2",
-    director: "드니 빌뇌브",
-    href: "#",
-    poster_image: "/error.png",
-    imageAlt: "/error.png",
-    movie_id: "1",
-    overview:
-      "아트레이데스 가문의 폴은 사막 행성 아라키스에서 운명을 마주하게 된다. 우주에서 가장 귀중한 자원인 스파이스의 지배권을 두고 벌어지는 은하계 전쟁.",
-    runtime: "166",
-    release_date: "2024-02-28",
-    genres: "genres",
-  },
-  {
-    id: 2,
-    title: "파묘",
-    director: "장재현",
-    href: "#",
-    poster_image: "/error.png",
-    imageAlt: "/error.png",
-    movie_id: "2",
-    overview:
-      "미스터리한 사건을 조사하기 위해 모인 팀이 오래된 묘를 파헤치면서 시작되는 공포스러운 이야기.",
-    runtime: "134",
-    release_date: "2024-02-22",
-    genres: "genres",
-  },
-  {
-    id: 3,
-    title: "웡카",
-    director: "폴 킹",
-    href: "#",
-    poster_image: "/error.png",
-    imageAlt: "/error.png",
-    movie_id: "3",
-    overview:
-      "세계에서 가장 유명한 초콜릿 공장을 세우기 전, 젊은 윌리 웡카의 마법 같은 모험을 그린 판타지 영화.",
-    runtime: "116",
-    release_date: "2023-12-20",
-    genres: "genres",
-  },
-  {
-    id: 4,
-    title: "데드풀 & 울버린",
-    director: "숀 레비",
-    href: "#",
-    poster_image: "/error.png",
-    imageAlt: "/error.png",
-    movie_id: "4",
-    overview:
-      "입담과 액션이 넘치는 데드풀이 울버린과 함께 새로운 모험을 떠나는 마블 유니버스의 코믹 액션 영화.",
-    runtime: "127",
-    release_date: "2024-07-26",
-    genres: "genres",
-  },
-];
-
 // 좌석 상태 타입을 단순화
 type SeatStatus = "available" | "occupied" | "selected";
 
@@ -130,7 +71,7 @@ type Action = {
 interface SelectedSeatProps {
   movie: number;
   cinema: { region: number; theather: number };
-  time: { date: string; start: string };
+  room: number;
   setSeats: React.Dispatch<React.SetStateAction<{ row: string; col: number }[]>>;
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
 }
@@ -140,21 +81,8 @@ const SelectedSeat: React.FC<SelectedSeatProps> = ({
   setSeats,
   movie,
   cinema,
-  time,
+  room,
 }) => {
-  const [movieDetail, setMovieDetail] = useState<{
-    id: number;
-    title: string;
-    director: string;
-    href: string;
-    poster_image: string;
-    imageAlt: string;
-    movie_id: string;
-    overview: string;
-    runtime: string;
-    release_date: string;
-    genres: string;
-  }>();
   const [theaterDetail, setTheaterDetail] = useState<{
     id: number;
     name: string;
@@ -164,11 +92,10 @@ const SelectedSeat: React.FC<SelectedSeatProps> = ({
     regionId: number;
   }>();
   useEffect(() => {
-    const getMovie = movies.filter((i) => i.id === movie);
-    setMovieDetail(getMovie[0]);
     const getTheather = theaters.filter((i) => i.id === cinema.theather);
     setTheaterDetail(getTheather[0]);
-  }, [movie, cinema]);
+    console.log(room);
+  }, [movie, cinema, room]);
 
   const [selectedSeats, setSelectedSeats] = useState<{ row: string; col: number }[]>([]);
   const maxSelectableSeats = 4; // 최대 선택 가능 좌석 수
@@ -192,17 +119,6 @@ const SelectedSeat: React.FC<SelectedSeatProps> = ({
         <h1 className="text-3xl font-bold">좌석 선택</h1>
       </div>
       {/* 좌석 선택 */}
-      {movieDetail == undefined || theaterDetail == undefined || time == undefined ? (
-        "NaN"
-      ) : (
-        <ShowBookingInfo
-          movieDetail={movieDetail}
-          theaterDetail={theaterDetail}
-          time={time}
-          selectedSeats={selectedSeats}
-        ></ShowBookingInfo>
-      )}
-      {/* 영화 정보 */}
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="w-full mb-10 relative">
@@ -279,19 +195,6 @@ const SelectedSeat: React.FC<SelectedSeatProps> = ({
 export default SelectedSeat;
 
 interface ShowTypeSeatProps {
-  movieDetail: {
-    id: number;
-    title: string;
-    director: string;
-    href: string;
-    poster_image: string;
-    imageAlt: string;
-    movie_id: string;
-    overview: string;
-    runtime: string;
-    release_date: string;
-    genres: string;
-  };
   theaterDetail: {
     id: number;
     name: string;
@@ -300,24 +203,12 @@ interface ShowTypeSeatProps {
     image: string;
     regionId: number;
   };
-  time: { date: string; start: string };
   selectedSeats: { row: string; col: number }[];
 }
-const ShowBookingInfo: React.FC<ShowTypeSeatProps> = ({
-  movieDetail,
-  theaterDetail,
-  time,
-  selectedSeats,
-}) => {
+const ShowBookingInfo: React.FC<ShowTypeSeatProps> = ({ theaterDetail, selectedSeats }) => {
   return (
     <div className="bg-gray-100 p-4 rounded-lg mb-6">
       <div className="flex flex-wrap justify-between items-center">
-        <div>
-          <h3 className="font-bold text-lg">{movieDetail?.title}</h3>
-          <p className="text-sm text-gray-600">
-            {theaterDetail?.name} | {time.date} | {time.start}
-          </p>
-        </div>
         <div className="text-sm">
           <span className="font-medium">선택한 좌석:</span>{" "}
           {selectedSeats.length > 0
