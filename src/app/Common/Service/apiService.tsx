@@ -116,7 +116,7 @@ export const fetchBoxofficeGet = async () => {
 };
 // http://localhost:8080/api/v1/screening?date=날짜&spotName=극장
 
-export const fetchSpotAndDate = async (spot: string, date: string) => {
+export const fetchSpotAndDate = async (spot: string, date: string, movie_id: number) => {
   if (spot == undefined) return;
   if (date == undefined) return;
   try {
@@ -125,10 +125,13 @@ export const fetchSpotAndDate = async (spot: string, date: string) => {
       Accept: "*/*",
     };
 
-    const response = await axios.get(`${API_BASE_URL}/v1/screening?date=${date}&spotName=${spot}`, {
-      headers,
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/v1/screening/simple?date=${date}&spotName=${spot}&movieId=${movie_id}`,
+      {
+        headers,
+        withCredentials: true,
+      }
+    );
 
     return response.data;
   } catch (err: unknown) {

@@ -84,9 +84,28 @@ const theaterListSlices = createSlice({
   },
   reducers: {},
 });
+type movieRunningDetail = {
+  kobisMovieCd: string;
+  roomIds: number[];
+  screeningIds: number[];
+  startTimes: string[];
+  tmdbMovieId: 696506;
+};
+
+const movieRunningDetailSlices = createSlice({
+  name: "movieRunningDetail",
+  initialState: { movieRunningDetail: {} as movieRunningDetail },
+  reducers: {
+    setMovieRunningDetail: (state, action) => {
+      state.movieRunningDetail = action.payload;
+    },
+  },
+});
 
 export const { setMovieList } = movieListSlices.actions;
+export const { setMovieRunningDetail } = movieRunningDetailSlices.actions;
 
 export const movieListSlicesReducer = movieListSlices.reducer;
 export const regionListSlicesReducer = regionListSlices.reducer;
 export const theaterListSlicesReducer = theaterListSlices.reducer;
+export const movieRunningDetailReducer = movieRunningDetailSlices.reducer;

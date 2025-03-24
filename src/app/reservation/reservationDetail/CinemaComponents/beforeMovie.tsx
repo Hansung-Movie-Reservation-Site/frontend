@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { scrollAni } from "@/app/Common/Animation/motionAni";
-import { useRegion, useTheather } from "@/redux/reduxService";
+import { useRegion, useTheather, useMovieRunningDetail } from "@/redux/reduxService";
 import { useReduxBoxoffice } from "@/redux/reduxService";
 import { fetchSpotAndDate } from "@/app/Common/Service/apiService";
 //db에서 region, spot, movie, screening의 start, date 부분 선택.
@@ -27,6 +27,14 @@ type Theater = {
   id: number;
   region_id: number;
   name: string;
+};
+
+type movieRunningDetail = {
+  kobisMovieCd: string;
+  roomIds: number[];
+  screeningIds: number[];
+  startTimes: string[];
+  tmdbMovieId: 696506;
 };
 
 const showtimes = [
@@ -56,7 +64,7 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
 
   const [selectedRegion, setSelectedRegion] = useState<number>();
   const [selectedTheater, setSelectedTheater] = useState<number>();
-  const [selectedMovie, setSelectedMovie] = useState<number>(-1);
+  const [selectedMovie, setSelectedMovie] = useState<number>();
   const [selectedStart, setSelectedStart] = useState<string | "">("");
   const [selectedDate, setSelectedDate] = useState<string>();
 
@@ -86,7 +94,8 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   const handleRegionSelect = (regionId: number) => {
     setSelectedRegion(regionId);
   };
-  const [s, setS] = useState();
+  //const [movieRunningList, setMovieRunningList] = useState();
+  const { movieRunningDetail, updateMovieRunningDetail } = useMovieRunningDetail();
 
   const handleTheaterSelect = async (theaterId: number) => {
     setSelectedTheater(theaterId);
@@ -116,40 +125,24 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   const filteredTheaters = theaterList.filter((theater) => theater.region_id === selectedRegion);
   const getSelectedTheater = () => theaterList.find((theater) => theater.id === selectedTheater);
 
+  const fetchData = async () => {
+    try {
+      if (selectedDate === undefined) return;
+
+      const theather = findTheaterId(selectedTheater);
+      if (theather == undefined) return; // theather가 undefined일 경우 처리
+
+      console.log(selectedMovie);
+      if (selectedMovie === undefined) return;
+      const data = await fetchSpotAndDate(theather.name, selectedDate, selectedMovie);
+      const result = data[0];
+      updateMovieRunningDetail(result);
+      console.log(movieRunningDetail);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (selectedDate === undefined) return;
-
-        const theather = getSelectedTheater();
-        if (theather == undefined) return; // theather가 undefined일 경우 처리
-
-        console.log(selectedDate);
-        console.log(theather.name);
-        const data = await fetchSpotAndDate(theather.name, selectedDate);
-        console.log(data);
-        const screen: {
-          id: number;
-
-          romnumber: number;
-          start: string;
-          runtime: number;
-          tmdbMovieId: number;
-        }[] = [];
-        for (let i = 0; i < data.length; i++) {
-          screen.push({
-            id: data[i].id,
-            romnumber: data[i].room.romnumber,
-            start: data[i].start,
-            runtime: data[i].movie.runtime,
-            tmdbMovieId: data[i].tmdbMovieId,
-          });
-        }
-        setS(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
     fetchData();
   }, [selectedDate]);
 
@@ -276,65 +269,67 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
                     </div>
 
                     {/* 영화 목록을 스크롤 가능한 컨테이너로 감싸기 */}
-                    <div className="h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {movieList.map((movie: Movie) => (
-                          <div
-                            key={movie.id}
-                            className={`rounded-lg border overflow-hidden cursor-pointer transition-all ${
-                              selectedMovie === movie.id
-                                ? "border-blue-500 ring-2 ring-blue-500/50"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                            onClick={() => handleMovieSelect(movie.id)}
-                          >
-                            <div className="relative">
-                              <img
-                                src={movie.posterImage}
-                                alt={"/error.png"}
-                                width={200}
-                                height={300}
-                                className="w-full h-[250px] object-cover"
-                              />
-                            </div>
-                            <div className="p-3">
-                              <h3 className="font-bold text-lg">{movie.title}</h3>
-                              <p className="text-sm text-gray-500">{movie.director}</p>
-                              <div className="flex items-center mt-2 text-sm">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-4 w-4 mr-1 text-yellow-500 fill-yellow-500"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                {movie.releaseDate}
+                    {movieList ? (
+                      <div className="h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {movieList.map((movie: Movie) => (
+                            <div
+                              key={movie.id}
+                              className={`rounded-lg border overflow-hidden cursor-pointer transition-all ${
+                                selectedMovie === movie.id
+                                  ? "border-blue-500 ring-2 ring-blue-500/50"
+                                  : "border-gray-200 hover:border-gray-300"
+                              }`}
+                              onClick={() => handleMovieSelect(movie.id)}
+                            >
+                              <div className="relative">
+                                <img
+                                  src={movie.posterImage}
+                                  alt={"/error.png"}
+                                  width={200}
+                                  height={300}
+                                  className="w-full h-[250px] object-cover"
+                                />
                               </div>
-                              <div className="flex justify-between mt-2 text-sm text-gray-500">
-                                <span>{movie.genres}</span>
-                                <div className="flex items-center">
+                              <div className="p-3">
+                                <h3 className="font-bold text-lg">{movie.title}</h3>
+                                <p className="text-sm text-gray-500">{movie.director}</p>
+                                <div className="flex items-center mt-2 text-sm">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
-                                    className="h-3 w-3 mr-1"
+                                    className="h-4 w-4 mr-1 text-yellow-500 fill-yellow-500"
                                     viewBox="0 0 20 20"
                                     fill="currentColor"
                                   >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                      clipRule="evenodd"
-                                    />
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                   </svg>
-                                  {Math.floor(Number(movie.runtime) / 60)}시간{" "}
-                                  {Number(movie.runtime) % 60}분
+                                  {movie.releaseDate}
+                                </div>
+                                <div className="flex justify-between mt-2 text-sm text-gray-500">
+                                  <span>{movie.genres}</span>
+                                  <div className="flex items-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-3 w-3 mr-1"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    {Math.floor(Number(movie.runtime) / 60)}시간{" "}
+                                    {Number(movie.runtime) % 60}분
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    ) : null}
 
                     {selectedMovie && (
                       <div className="py-16" ref={showtimeRef}>
