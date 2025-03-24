@@ -21,7 +21,10 @@ export const useReduxBoxoffice = () => {
   const updateMovieList = (newMovieList: Movie[]) => {
     dispatch(setMovieList(newMovieList));
   };
-  return { movieList, updateMovieList };
+  const findMovie = (kobisMovieCd: string) => {
+    return movieList.find((m) => Number(m.kobisMovieCd) == Number(kobisMovieCd));
+  };
+  return { movieList, updateMovieList, findMovie };
 };
 
 export const useRegion = () => {
@@ -42,20 +45,19 @@ export const useTheather = () => {
   return { theaterList, findTheaterId };
 };
 
-type movieRunningDetail = {
+type MovieRunningDetail = {
   kobisMovieCd: string;
   roomIds: number[];
   screeningIds: number[];
   startTimes: string[];
   tmdbMovieId: 696506;
 };
-
 export const useMovieRunningDetail = () => {
   const dispatch = useDispatch();
   const movieRunningDetail = useSelector(
     (state: RootState) => state.movieRunningDetail.movieRunningDetail
   );
-  const updateMovieRunningDetail = (movieRunningDetail: movieRunningDetail) => {
+  const updateMovieRunningDetail = (movieRunningDetail: MovieRunningDetail) => {
     dispatch(setMovieRunningDetail(movieRunningDetail));
   };
   return { movieRunningDetail, updateMovieRunningDetail };
