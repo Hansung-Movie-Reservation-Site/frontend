@@ -21,7 +21,7 @@ export default function Reservation() {
   const text = "예매하기";
 
   // 🚨서버에서 데이터 가져오기 🚨
-  const { movieList, updateMovieList } = useReduxBoxoffice();
+  const { updateMovieList } = useReduxBoxoffice();
   const fetchMovieList = async () => {
     try {
       const data = await fetchBoxofficeGet();
@@ -53,8 +53,9 @@ export default function Reservation() {
     region: -1,
     theather: -1,
   });
-  const [room, setRoom] = useState<number>(0);
-  const [seats, setSeats] = useState<{ row: string; col: number }[]>([]);
+  const [date, setDate] = useState<string>("");
+  const [screen, setScreen] = useState<number>(0);
+  const [seats, setSeats] = useState<number[]>([]);
 
   return (
     <>
@@ -89,7 +90,8 @@ export default function Reservation() {
                         setActiveStep={setActiveStep}
                         setCinema={setCinema}
                         setMovie={setMovie}
-                        setRoom={setRoom}
+                        setScreen={setScreen}
+                        setDate={setDate}
                       />
                     ) : (
                       <div>영화 선택 후 영화관 선택</div>
@@ -98,9 +100,7 @@ export default function Reservation() {
                     <SelectedSeat
                       setActiveStep={setActiveStep}
                       setSeats={setSeats}
-                      movie={movie}
-                      cinema={cinema}
-                      room={room}
+                      screen={screen}
                     />
                   ) : activeStep === 3 ? (
                     <Payment setBookingState={setBookingState} />
@@ -117,7 +117,14 @@ export default function Reservation() {
           setBookingState={setBookingState}
         ></ReservationState>
         {BookingState ? (
-          <BookingInfo setBookingState={setBookingState} movie={movie}></BookingInfo>
+          <BookingInfo
+            setBookingState={setBookingState}
+            movie={movie}
+            cinema={cinema}
+            screen={screen}
+            seats={seats}
+            date={date}
+          ></BookingInfo>
         ) : (
           ""
         )}

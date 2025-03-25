@@ -3,35 +3,62 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useTheather, useMovieRunningDetail, useReduxBoxoffice } from "@/redux/reduxService";
+import { Movie, Theater } from "../typeReserve";
 
 interface BookingInfoProps {
   setBookingState: (value: boolean) => void;
   movie: number;
+  cinema: { region: number; theather: number };
+  screen: number;
+  seats: number[];
+  date: string;
 }
 
-const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState, movie }) => {
-  // 샘플 예매 정보
-  const bookingInfo = {
-    theater: {
-      name: "메가박스 강남",
-      location: "서울 강남구 역삼동 814-6",
-    },
-    // movie: {
-    //   title: "듄: 파트 2",
-    //   englishTitle: "Dune: Part Two",
-    //   runtime: 166,
-    //   poster: "/placeholder.svg?height=300&width=200",
-    // },
-    showtime: {
-      time: "19:00",
-      hall: "2관",
-      seats: "120/150",
-    },
-    date: "오늘 (3월 16일)",
-    ticketCount: 2,
-    totalPrice: 26000,
-    selectedSeats: "H7, H8",
+const BookingInfo: React.FC<BookingInfoProps> = ({
+  setBookingState,
+  movie,
+  cinema,
+  screen,
+  seats,
+  date,
+}) => {
+  const { findTheaterId } = useTheather();
+  const { movieRunningDetail } = useMovieRunningDetail();
+  const { findMovie } = useReduxBoxoffice();
+
+  type MovieInfo = {
+    title: string;
+    posterImage: string;
+    director: string;
+    genres: string;
+    runtime: number;
   };
+  const defaultMovie = {
+    title: "영화를 선택해주세요.",
+    posterImage: "/error.png",
+    director: "영화를 선택해주세요.",
+    genres: "영화를 선택해주세요.",
+    runtime: 0,
+  };
+  const getMovie = () => {
+    const m = findMovie(movieRunningDetail.kobisMovieCd);
+    if (m === undefined) return defaultMovie;
+    return {
+      title: m.title,
+      posterImage: m?.posterImage,
+      director: m.director,
+      genres: m.genres,
+      runtime: m.runtime,
+    };
+  };
+  const getTheater = () => {
+    const t = findTheaterId(cinema.theather);
+    if (t === undefined) return "영화관을 선택해주세요.";
+    return t.name;
+  };
+  const [movieInfo, setMovieInfo] = useState<MovieInfo>(getMovie());
+  const [cinemaInfo, setCinemaInfo] = useState<string>(getTheater());
   // 모달이 열릴 때 스크롤 방지
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -82,7 +109,7 @@ const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState, movie }) => 
           <div className="h-px bg-gray-200"></div>
         </div>
 
-        <PaymentContent bookingInfo={bookingInfo} movie={movie}></PaymentContent>
+        <PaymentContent movie={movie}></PaymentContent>
         <div className="h-px bg-gray-200"></div>
         <div className="p-4 flex justify-end bg-gray-50">
           <button
@@ -114,57 +141,6 @@ const BookingInfo: React.FC<BookingInfoProps> = ({ setBookingState, movie }) => 
 };
 
 export default BookingInfo;
-
-const regions = [
-  { id: 1, name: "서울" },
-  { id: 2, name: "경기" },
-  { id: 3, name: "인천" },
-  { id: 4, name: "부산" },
-  { id: 5, name: "대구" },
-];
-
-const theaters = [
-  {
-    id: 1,
-    name: "메가박스 강남",
-    location: "서울 강남구 역삼동 814-6",
-    distance: "1.2km",
-    image: "/placeholder.svg?height=100&width=200",
-    regionId: 1,
-  },
-  {
-    id: 2,
-    name: "CGV 압구정",
-    location: "서울 강남구 신사동 602",
-    distance: "2.5km",
-    image: "/placeholder.svg?height=100&width=200",
-    regionId: 1,
-  },
-  {
-    id: 3,
-    name: "롯데시네마 월드타워",
-    location: "서울 송파구 올림픽로 300",
-    distance: "5.8km",
-    image: "/placeholder.svg?height=100&width=200",
-    regionId: 1,
-  },
-  {
-    id: 4,
-    name: "CGV 일산",
-    location: "경기도 고양시 일산동구 중앙로 1283",
-    distance: "15.2km",
-    image: "/placeholder.svg?height=100&width=200",
-    regionId: 2,
-  },
-  {
-    id: 5,
-    name: "메가박스 부산",
-    location: "부산광역시 해운대구 센텀남대로 35",
-    distance: "320km",
-    image: "/placeholder.svg?height=100&width=200",
-    regionId: 4,
-  },
-];
 
 const movies = [
   {
@@ -225,68 +201,52 @@ const movies = [
   },
 ];
 
-const showtimes = [
-  { id: 1, time: "10:30", seats: "132/150", hall: "1관" },
-  { id: 2, time: "13:20", seats: "98/150", hall: "1관" },
-  { id: 3, time: "16:10", seats: "45/150", hall: "1관" },
-  { id: 4, time: "19:00", seats: "120/150", hall: "2관" },
-  { id: 5, time: "21:50", seats: "30/150", hall: "2관" },
-];
-
 interface PaymentContentProps {
-  bookingInfo: {
-    theater: {
-      name: string;
-      location: string;
-    };
-    // movie: {
-    //   title: string;
-    //   englishTitle: string;
-    //   runtime: number;
-    //   poster: string;
-    // };
-    showtime: {
-      time: string;
-      hall: string;
-      seats: string;
-    };
-    date: string;
-    ticketCount: number;
-    totalPrice: number;
-    selectedSeats: string;
-  };
   movie: number;
 }
 
-const PaymentContent = ({ bookingInfo, movie }: PaymentContentProps) => {
-  const [movieDetail, setMovieDetail] = useState<{
-    id: number;
+const PaymentContent = ({ movie }: PaymentContentProps) => {
+  const { findMovie_id } = useReduxBoxoffice();
+  const { movieRunningDetail } = useMovieRunningDetail();
+
+  type MovieInfo = {
     title: string;
+    posterImage: string;
     director: string;
-    href: string;
-    poster_image: string;
-    imageAlt: string;
-    movie_id: string;
-    overview: string;
-    runtime: string;
-    release_date: string;
     genres: string;
-  }>();
-  //const getMovie = movies.filter((i) => i.id === movie);
+    runtime: number;
+  };
+  const defaultMovie = {
+    title: "영화를 선택해주세요.",
+    posterImage: "/error.png",
+    director: "영화를 선택해주세요.",
+    genres: "영화를 선택해주세요.",
+    runtime: 0,
+  };
+  const getMovie = () => {
+    const m = findMovie_id(movie);
+    if (m === undefined) return defaultMovie;
+    return {
+      title: m.title,
+      posterImage: m?.posterImage,
+      director: m.director,
+      genres: m.genres,
+      runtime: m.runtime,
+    };
+  };
+  const [movieInfo, setMovieInfo] = useState<MovieInfo>(getMovie());
   useEffect(() => {
-    const getMovie = movies.find((i) => i.id === movie);
-    if (getMovie) {
-      setMovieDetail(getMovie);
-    }
+    setMovieInfo(getMovie());
+    console.log(movieInfo);
   }, [movie]); // movie가 변경될 때마다 실행
 
   return (
     <div className="p-6 overflow-y-auto ">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="flex flex-col items-center">
-          <Image
-            src={movieDetail?.poster_image || "/error.png"}
-            alt={movieDetail?.imageAlt || "/error.png"}
+          <img
+            src={movieInfo.posterImage}
+            alt={"/error.png"}
             width={200}
             height={300}
             className="w-full max-w-[200px] h-auto object-cover rounded-lg shadow"
@@ -294,11 +254,11 @@ const PaymentContent = ({ bookingInfo, movie }: PaymentContentProps) => {
         </div>
 
         <div className="md:col-span-2">
-          <h3 className="text-2xl font-bold">{movieDetail?.title}</h3>
+          <h3 className="text-2xl font-bold">{movieInfo.title}</h3>
 
           <div className="h-px bg-gray-200"></div>
 
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-500">극장</span>
               <span className="font-medium">{bookingInfo.theater.name}</span>
@@ -345,7 +305,7 @@ const PaymentContent = ({ bookingInfo, movie }: PaymentContentProps) => {
                 {bookingInfo.totalPrice.toLocaleString()}원
               </span>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

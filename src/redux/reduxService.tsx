@@ -24,7 +24,10 @@ export const useReduxBoxoffice = () => {
   const findMovie = (kobisMovieCd: string) => {
     return movieList.find((m) => Number(m.kobisMovieCd) == Number(kobisMovieCd));
   };
-  return { movieList, updateMovieList, findMovie };
+  const findMovie_id = (id: number) => {
+    return movieList.find((m) => m.id == id);
+  };
+  return { movieList, updateMovieList, findMovie, findMovie_id };
 };
 
 export const useRegion = () => {
@@ -38,8 +41,9 @@ type Theater = {
 };
 export const useTheather = () => {
   const theaterList = useSelector((state: RootState) => state.theaterList.theaters);
-  const findTheaterId = (theaterId: number | undefined) => {
+  const findTheaterId = (theaterId: number) => {
     //if (theaterId === undefined) return;
+    //const result = theaterList.find((t) => t.id == theaterId);
     return theaterList.find((t) => t.id == theaterId);
   };
   return { theaterList, findTheaterId };

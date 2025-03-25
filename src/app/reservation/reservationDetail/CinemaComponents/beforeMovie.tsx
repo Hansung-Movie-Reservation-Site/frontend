@@ -17,19 +17,21 @@ interface BeforeMovieProps {
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
   setCinema: React.Dispatch<React.SetStateAction<{ region: number; theather: number }>>;
   setMovie: React.Dispatch<React.SetStateAction<number>>;
-  setRoom: React.Dispatch<React.SetStateAction<number>>;
+  setScreen: React.Dispatch<React.SetStateAction<number>>;
+  setDate: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const BeforeMovie: React.FC<BeforeMovieProps> = ({
   setActiveStep,
   setMovie,
-  setRoom,
+  setScreen,
   setCinema,
+  setDate,
 }) => {
   const [selectedRegion, setSelectedRegion] = useState<number>();
   const [selectedTheater, setSelectedTheater] = useState<number>();
   const [selectedMovie, setSelectedMovie] = useState<number>();
-  const [selectedRoom, setSelectedRoom] = useState<number>();
+  const [selectedScreen, setSelectedScreen] = useState<number>();
   const [selectedDate, setSelectedDate] = useState<string>();
   const [finishTimes, setFinishTimes] = useState<string[]>([]);
 
@@ -67,11 +69,9 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
     setSelectedRegion(regionId);
   };
 
-  const handleTheaterSelect = async (theaterId: number) => {
+  const handleTheaterSelect = (theaterId: number) => {
     setSelectedTheater(theaterId);
-    if (window.innerWidth >= 768) {
-      scrollAni(movieListRef);
-    }
+    scrollAni(movieListRef);
   };
 
   const handleMovieSelect = (movieId: number) => {
@@ -79,15 +79,18 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
     // 여기서 스크린 상영정보 api 통신 추가.
   };
 
-  const handleStartSelect = (room_id: number) => {
-    setSelectedRoom(room_id);
+  const handleStartSelect = (screening_id: number) => {
+    setSelectedScreen(screening_id);
     scrollAni(seatButtonRef);
   };
   const handleCinema = () => {
     if (selectedMovie !== undefined) setMovie(selectedMovie);
     if (selectedRegion != undefined && selectedTheater != undefined)
       setCinema({ region: selectedRegion, theather: selectedTheater });
-    if (selectedDate != undefined && selectedRoom != undefined) setRoom(selectedRoom);
+    if (selectedDate != undefined && selectedScreen != undefined) {
+      setScreen(selectedScreen);
+      setDate(selectedDate);
+    }
     setActiveStep(2);
   };
 
@@ -318,19 +321,22 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
                       <div className="py-16" ref={showtimeRef}>
                         <h3 className="text-lg font-semibold mb-3">상영 시간</h3>
                         <div className="flex flex-wrap gap-2">
-                          {movieRunningDetail.roomIds.map((roomId: number, i: number) => (
-                            <button
-                              key={roomId}
-                              className={`flex flex-col items-center px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
-                                selectedRoom === roomId
-                                  ? "bg-blue-500 text-white border-blue-500"
-                                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                              }`}
-                              onClick={() => handleStartSelect(roomId)}
-                            >
-                              <span className="font-bold">{movieRunningDetail.startTimes[i]}</span>
-                              <span className="text-xs">{finishTimes[i]}</span>
-                              {/* <span
+                          {movieRunningDetail.screeningIds.map(
+                            (screening_id: number, i: number) => (
+                              <button
+                                key={screening_id}
+                                className={`flex flex-col items-center px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
+                                  selectedScreen === screening_id
+                                    ? "bg-blue-500 text-white border-blue-500"
+                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                }`}
+                                onClick={() => handleStartSelect(screening_id)}
+                              >
+                                <span className="font-bold">
+                                  {movieRunningDetail.startTimes[i]}
+                                </span>
+                                <span className="text-xs">{finishTimes[i]}</span>
+                                {/* <span
                                 className={`text-xs ${
                                   selectedStart === movieRunningDetail.startTimes[i]
                                     ? "text-blue-100"
@@ -339,10 +345,11 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
                               >
                                 //{showtime.seats}
                               </span> */}
-                            </button>
-                          ))}
+                              </button>
+                            )
+                          )}
                         </div>
-                        {selectedRoom && (
+                        {selectedScreen && (
                           <div className="mt-6 flex justify-end" ref={seatButtonRef}>
                             <button
                               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
