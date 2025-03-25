@@ -2,9 +2,12 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import { useTheather, useMovieRunningDetail, useReduxBoxoffice } from "@/redux/reduxService";
-import { Movie, Theater } from "../typeReserve";
+import {
+  useRegion,
+  useTheather,
+  useMovieRunningDetail,
+  useReduxBoxoffice,
+} from "@/redux/reduxService";
 
 interface BookingInfoProps {
   setBookingState: (value: boolean) => void;
@@ -23,42 +26,6 @@ const BookingInfo: React.FC<BookingInfoProps> = ({
   seats,
   date,
 }) => {
-  const { findTheaterId } = useTheather();
-  const { movieRunningDetail } = useMovieRunningDetail();
-  const { findMovie } = useReduxBoxoffice();
-
-  type MovieInfo = {
-    title: string;
-    posterImage: string;
-    director: string;
-    genres: string;
-    runtime: number;
-  };
-  const defaultMovie = {
-    title: "영화를 선택해주세요.",
-    posterImage: "/error.png",
-    director: "영화를 선택해주세요.",
-    genres: "영화를 선택해주세요.",
-    runtime: 0,
-  };
-  const getMovie = () => {
-    const m = findMovie(movieRunningDetail.kobisMovieCd);
-    if (m === undefined) return defaultMovie;
-    return {
-      title: m.title,
-      posterImage: m?.posterImage,
-      director: m.director,
-      genres: m.genres,
-      runtime: m.runtime,
-    };
-  };
-  const getTheater = () => {
-    const t = findTheaterId(cinema.theather);
-    if (t === undefined) return "영화관을 선택해주세요.";
-    return t.name;
-  };
-  const [movieInfo, setMovieInfo] = useState<MovieInfo>(getMovie());
-  const [cinemaInfo, setCinemaInfo] = useState<string>(getTheater());
   // 모달이 열릴 때 스크롤 방지
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -109,7 +76,13 @@ const BookingInfo: React.FC<BookingInfoProps> = ({
           <div className="h-px bg-gray-200"></div>
         </div>
 
-        <PaymentContent movie={movie}></PaymentContent>
+        <PaymentContent
+          movie={movie}
+          cinema={cinema}
+          screen={screen}
+          seats={seats}
+          date={date}
+        ></PaymentContent>
         <div className="h-px bg-gray-200"></div>
         <div className="p-4 flex justify-end bg-gray-50">
           <button
@@ -142,72 +115,19 @@ const BookingInfo: React.FC<BookingInfoProps> = ({
 
 export default BookingInfo;
 
-const movies = [
-  {
-    id: 1,
-    title: "듄: 파트 2",
-    director: "드니 빌뇌브",
-    href: "#",
-    poster_image: "/error.png",
-    imageAlt: "/error.png",
-    movie_id: "1",
-    overview:
-      "아트레이데스 가문의 폴은 사막 행성 아라키스에서 운명을 마주하게 된다. 우주에서 가장 귀중한 자원인 스파이스의 지배권을 두고 벌어지는 은하계 전쟁.",
-    runtime: "166",
-    release_date: "2024-02-28",
-    genres: "genres",
-  },
-  {
-    id: 2,
-    title: "파묘",
-    director: "장재현",
-    href: "#",
-    poster_image: "/error.png",
-    imageAlt: "/error.png",
-    movie_id: "2",
-    overview:
-      "미스터리한 사건을 조사하기 위해 모인 팀이 오래된 묘를 파헤치면서 시작되는 공포스러운 이야기.",
-    runtime: "134",
-    release_date: "2024-02-22",
-    genres: "genres",
-  },
-  {
-    id: 3,
-    title: "웡카",
-    director: "폴 킹",
-    href: "#",
-    poster_image: "/error.png",
-    imageAlt: "/error.png",
-    movie_id: "3",
-    overview:
-      "세계에서 가장 유명한 초콜릿 공장을 세우기 전, 젊은 윌리 웡카의 마법 같은 모험을 그린 판타지 영화.",
-    runtime: "116",
-    release_date: "2023-12-20",
-    genres: "genres",
-  },
-  {
-    id: 4,
-    title: "데드풀 & 울버린",
-    director: "숀 레비",
-    href: "#",
-    poster_image: "/error.png",
-    imageAlt: "/error.png",
-    movie_id: "4",
-    overview:
-      "입담과 액션이 넘치는 데드풀이 울버린과 함께 새로운 모험을 떠나는 마블 유니버스의 코믹 액션 영화.",
-    runtime: "127",
-    release_date: "2024-07-26",
-    genres: "genres",
-  },
-];
-
 interface PaymentContentProps {
   movie: number;
+  cinema: { region: number; theather: number };
+  screen: number;
+  seats: number[];
+  date: string;
 }
 
-const PaymentContent = ({ movie }: PaymentContentProps) => {
+const PaymentContent = ({ movie, cinema, screen, seats, date }: PaymentContentProps) => {
   const { findMovie_id } = useReduxBoxoffice();
-  const { movieRunningDetail } = useMovieRunningDetail();
+  const { movieRunningDetail, findStartTime } = useMovieRunningDetail();
+  const { findTheaterId } = useTheather();
+  const { findRegion } = useRegion();
 
   type MovieInfo = {
     title: string;
@@ -235,8 +155,19 @@ const PaymentContent = ({ movie }: PaymentContentProps) => {
     };
   };
   const [movieInfo, setMovieInfo] = useState<MovieInfo>(getMovie());
+  const [theatherInfo, setTheatherInfo] = useState<string>("영화관을 선택해 주세요.");
+  const [regionInfo, setRegionInfo] = useState<string>("지역을 선택해 주세요.");
+  const [startTimeIndex, setStartTimeIndex] = useState<number>(-1);
   useEffect(() => {
     setMovieInfo(getMovie());
+    const theather = findTheaterId(cinema.theather);
+    setTheatherInfo(theather?.name || "영화관을 선택해 주세요.");
+    const region = findRegion(cinema.region);
+    setRegionInfo(region[0].name);
+
+    const index = findStartTime(screen);
+    setStartTimeIndex(index);
+
     console.log(movieInfo);
   }, [movie]); // movie가 변경될 때마다 실행
 
@@ -258,34 +189,27 @@ const PaymentContent = ({ movie }: PaymentContentProps) => {
 
           <div className="h-px bg-gray-200"></div>
 
-          {/* <div className="space-y-3">
+          <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-500">극장</span>
-              <span className="font-medium">{bookingInfo.theater.name}</span>
+              <span className="font-medium">{theatherInfo}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">위치</span>
-              <span className="font-medium">{bookingInfo.theater.location}</span>
+              <span className="font-medium">{regionInfo}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">날짜</span>
-              <span className="font-medium">{bookingInfo.date}</span>
+              <span className="font-medium">{date}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">시간</span>
-              <span className="font-medium">
-                {bookingInfo.showtime.time} ({bookingInfo.showtime.hall})
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">잔여좌석</span>
-              <span className="font-medium">{bookingInfo.showtime.seats}</span>
+              <span className="text-gray-500">시작 시간</span>
+              <span className="font-medium">{movieRunningDetail.startTimes[startTimeIndex]}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">상영시간</span>
               <span className="font-medium">
-                {Math.floor(Number(movieDetail?.runtime) / 60)}시간{" "}
-                {Number(movieDetail?.runtime) % 60}분
+                {Math.floor(Number(movieInfo.runtime) / 60)}시간 {Number(movieInfo.runtime) % 60}분
               </span>
             </div>
 
@@ -293,19 +217,23 @@ const PaymentContent = ({ movie }: PaymentContentProps) => {
 
             <div className="flex justify-between">
               <span className="text-gray-500">선택 좌석</span>
-              <span className="font-medium">{bookingInfo.selectedSeats}</span>
+              <div className="flex gap-2">
+                {seats.map((s, i) => (
+                  <span key={i}>{s}</span>
+                ))}
+              </div>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">인원</span>
-              <span className="font-medium">{bookingInfo.ticketCount}명</span>
+              <span className="font-medium">{seats.length}명</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">결제 금액</span>
-              <span className="font-bold text-blue-600">
-                {bookingInfo.totalPrice.toLocaleString()}원
-              </span>
+              {/* <span className="font-bold text-blue-600">
+                {movieRunningDetail..toLocaleString()}원
+              </span> */}
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

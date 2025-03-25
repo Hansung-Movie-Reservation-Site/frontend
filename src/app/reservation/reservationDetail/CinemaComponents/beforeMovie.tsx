@@ -35,7 +35,7 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   const [selectedDate, setSelectedDate] = useState<string>();
   const [finishTimes, setFinishTimes] = useState<string[]>([]);
 
-  const regions = useRegion();
+  const { regionList } = useRegion();
   const { theaterList, findTheaterId } = useTheather();
   const { movieList, findMovie } = useReduxBoxoffice();
   const { movieRunningDetail, updateMovieRunningDetail } = useMovieRunningDetail();
@@ -141,7 +141,7 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
           <div>
             <h2 className="text-xl font-semibold mb-3">지역 선택</h2>
             <div className="flex flex-wrap gap-2">
-              {regions.map((region: Region) => (
+              {regionList.map((region: Region) => (
                 <button
                   key={region.id}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${

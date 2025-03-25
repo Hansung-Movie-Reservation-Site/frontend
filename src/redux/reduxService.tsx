@@ -32,7 +32,11 @@ export const useReduxBoxoffice = () => {
 
 export const useRegion = () => {
   const regionList = useSelector((state: RootState) => state.regionList.regions);
-  return regionList;
+
+  const findRegion = (region_id: number) => {
+    return regionList.filter((r) => r.id === region_id);
+  };
+  return { regionList, findRegion };
 };
 type Theater = {
   id: number;
@@ -64,5 +68,8 @@ export const useMovieRunningDetail = () => {
   const updateMovieRunningDetail = (movieRunningDetail: MovieRunningDetail) => {
     dispatch(setMovieRunningDetail(movieRunningDetail));
   };
-  return { movieRunningDetail, updateMovieRunningDetail };
+  const findStartTime = (screen_id: number) => {
+    return movieRunningDetail.screeningIds.findIndex((ids) => ids === screen_id);
+  };
+  return { movieRunningDetail, updateMovieRunningDetail, findStartTime };
 };
