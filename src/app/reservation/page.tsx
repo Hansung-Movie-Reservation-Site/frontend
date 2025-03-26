@@ -9,10 +9,11 @@ import { TypingText } from "@/app/Common/Animation/typingAni";
 import Payment from "./reservationDetail/payment";
 import { BufferingAni } from "../Common/Animation/motionAni";
 import { ReservationState } from "./reservationUI/reservationState";
-import BeforeMovie from "./reservationDetail/CinemaComponents/beforeMovie";
+import SelectedTheater from "./reservationDetail/CinemaComponents/selectedTheater";
 import BookingInfo from "./reservationUI/bookinginfo";
 import { fetchBoxofficeGet } from "../Common/Service/apiService";
 import { useReduxBoxoffice } from "@/redux/reduxService";
+import ScrollToTopButton from "../Common/scrollTopButton";
 
 export default function Reservation() {
   const [activeStep, setActiveStep] = useState(0); // 현재 활성화된 단계
@@ -85,17 +86,13 @@ export default function Reservation() {
                   {activeStep === 0 ? (
                     <SelectedMovie setActiveStep={setActiveStep} setMovie={setMovie} />
                   ) : activeStep === 1 ? (
-                    movie === -1 ? (
-                      <BeforeMovie
-                        setActiveStep={setActiveStep}
-                        setCinema={setCinema}
-                        setMovie={setMovie}
-                        setScreen={setScreen}
-                        setDate={setDate}
-                      />
-                    ) : (
-                      <div>영화 선택 후 영화관 선택</div>
-                    )
+                    <SelectedTheater
+                      setActiveStep={setActiveStep}
+                      setCinema={setCinema}
+                      setMovie={setMovie}
+                      setScreen={setScreen}
+                      setDate={setDate}
+                    />
                   ) : activeStep === 2 ? (
                     <SelectedSeat
                       setActiveStep={setActiveStep}
@@ -128,6 +125,7 @@ export default function Reservation() {
         ) : (
           ""
         )}
+        <ScrollToTopButton />
       </div>
     </>
   );

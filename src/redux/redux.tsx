@@ -84,13 +84,15 @@ const theaterListSlices = createSlice({
   },
   reducers: {},
 });
-type movieRunningDetail = {
-  kobisMovieCd: string;
-  roomIds: number[];
-  screeningIds: number[];
-  startTimes: string[];
-  tmdbMovieId: 696506;
-};
+type movieRunningDetail =
+  | {
+      kobisMovieCd: string;
+      roomIds: number[];
+      screeningIds: number[];
+      startTimes: string[];
+      tmdbMovieId: 696506;
+    }
+  | undefined;
 
 const movieRunningDetailSlices = createSlice({
   name: "movieRunningDetail",

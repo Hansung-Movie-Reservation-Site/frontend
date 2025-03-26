@@ -19,10 +19,12 @@ export type Theater = {
   region_id: number;
   name: string;
 };
-export type MovieRunningDetail = {
-  kobisMovieCd: string;
-  roomIds: number[];
-  screeningIds: number[];
-  startTimes: string[];
-  tmdbMovieId: 696506;
-};
+export type MovieRunningDetail =
+  | {
+      kobisMovieCd: string;
+      roomIds: number[];
+      screeningIds: number[];
+      startTimes: string[];
+      tmdbMovieId: 696506;
+    }
+  | undefined;

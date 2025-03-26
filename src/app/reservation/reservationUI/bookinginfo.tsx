@@ -163,10 +163,12 @@ const PaymentContent = ({ movie, cinema, screen, seats, date }: PaymentContentPr
     const theather = findTheaterId(cinema.theather);
     setTheatherInfo(theather?.name || "영화관을 선택해 주세요.");
     const region = findRegion(cinema.region);
-    setRegionInfo(region[0].name);
+    setRegionInfo(region[0]?.name || "지역을 선택해 주세요.");
 
+    // if (movieRunningDetail != undefined) {
     const index = findStartTime(screen);
     setStartTimeIndex(index);
+    // }
 
     console.log(movieInfo);
   }, [movie]); // movie가 변경될 때마다 실행
@@ -200,11 +202,15 @@ const PaymentContent = ({ movie, cinema, screen, seats, date }: PaymentContentPr
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">날짜</span>
-              <span className="font-medium">{date}</span>
+              <span className="font-medium">{date || "날짜를 선택해주세요."}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">시작 시간</span>
-              <span className="font-medium">{movieRunningDetail.startTimes[startTimeIndex]}</span>
+              <span className="font-medium">
+                {startTimeIndex !== -1
+                  ? movieRunningDetail?.startTimes[startTimeIndex]
+                  : "시간을 선택해주세요."}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">상영시간</span>
@@ -218,9 +224,11 @@ const PaymentContent = ({ movie, cinema, screen, seats, date }: PaymentContentPr
             <div className="flex justify-between">
               <span className="text-gray-500">선택 좌석</span>
               <div className="flex gap-2">
-                {seats.map((s, i) => (
-                  <span key={i}>{s}</span>
-                ))}
+                {seats.length !== 0 ? (
+                  seats.map((s, i) => <span key={i}>{s}</span>)
+                ) : (
+                  <span>좌석이 비었습니다.</span>
+                )}
               </div>
             </div>
             <div className="flex justify-between">

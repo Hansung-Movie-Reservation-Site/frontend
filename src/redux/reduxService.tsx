@@ -53,13 +53,15 @@ export const useTheather = () => {
   return { theaterList, findTheaterId };
 };
 
-type MovieRunningDetail = {
-  kobisMovieCd: string;
-  roomIds: number[];
-  screeningIds: number[];
-  startTimes: string[];
-  tmdbMovieId: 696506;
-};
+type MovieRunningDetail =
+  | {
+      kobisMovieCd: string;
+      roomIds: number[];
+      screeningIds: number[];
+      startTimes: string[];
+      tmdbMovieId: 696506;
+    }
+  | undefined;
 export const useMovieRunningDetail = () => {
   const dispatch = useDispatch();
   const movieRunningDetail = useSelector(
@@ -69,6 +71,7 @@ export const useMovieRunningDetail = () => {
     dispatch(setMovieRunningDetail(movieRunningDetail));
   };
   const findStartTime = (screen_id: number) => {
+    if (movieRunningDetail?.kobisMovieCd === undefined) return -1;
     return movieRunningDetail.screeningIds.findIndex((ids) => ids === screen_id);
   };
   return { movieRunningDetail, updateMovieRunningDetail, findStartTime };

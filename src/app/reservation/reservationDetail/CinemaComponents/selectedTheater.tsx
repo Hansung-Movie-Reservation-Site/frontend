@@ -10,10 +10,11 @@ import {
 import { fetchSpotAndDate } from "@/app/Common/Service/apiService";
 import { Movie, Region, Theater, MovieRunningDetail } from "../../typeReserve";
 import { calcFinishTime } from "@/app/Common/Service/timeClacService";
+import { setMovieRunningDetail } from "@/redux/redux";
 //db에서 region, spot, movie, screening의 start, date 부분 선택.
 // Sample data
 
-interface BeforeMovieProps {
+interface SelectedTheaterProps {
   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
   setCinema: React.Dispatch<React.SetStateAction<{ region: number; theather: number }>>;
   setMovie: React.Dispatch<React.SetStateAction<number>>;
@@ -21,18 +22,18 @@ interface BeforeMovieProps {
   setDate: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const BeforeMovie: React.FC<BeforeMovieProps> = ({
+const SelectedTheater: React.FC<SelectedTheaterProps> = ({
   setActiveStep,
   setMovie,
   setScreen,
   setCinema,
   setDate,
 }) => {
-  const [selectedRegion, setSelectedRegion] = useState<number>();
-  const [selectedTheater, setSelectedTheater] = useState<number>();
-  const [selectedMovie, setSelectedMovie] = useState<number>();
-  const [selectedScreen, setSelectedScreen] = useState<number>();
-  const [selectedDate, setSelectedDate] = useState<string>();
+  const [selectedRegion, setSelectedRegion] = useState<number>(-1);
+  const [selectedTheater, setSelectedTheater] = useState<number>(-1);
+  const [selectedMovie, setSelectedMovie] = useState<number>(-1);
+  const [selectedScreen, setSelectedScreen] = useState<number>(-1);
+  const [selectedDate, setSelectedDate] = useState<string>("날짜선택");
   const [finishTimes, setFinishTimes] = useState<string[]>([]);
 
   const { regionList } = useRegion();
@@ -65,42 +66,57 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   const showtimeRef = useRef<HTMLDivElement>(null);
   const seatButtonRef = useRef<HTMLDivElement>(null);
 
+  const [theaterStep, setTheatherStep] = useState(0);
+
   const handleRegionSelect = (regionId: number) => {
     setSelectedRegion(regionId);
+    setSelectedTheater(-1);
+    setSelectedMovie(-1);
+    setSelectedScreen(-1);
+    setSelectedDate("날짜선택");
+    setFinishTimes([]);
+    setTheatherStep(1);
   };
 
   const handleTheaterSelect = (theaterId: number) => {
     setSelectedTheater(theaterId);
+    setSelectedMovie(-1);
+    setSelectedScreen(-1);
+    setSelectedDate("날짜선택");
+    setFinishTimes([]);
     scrollAni(movieListRef);
+    setTheatherStep(2);
   };
 
   const handleMovieSelect = (movieId: number) => {
     setSelectedMovie(movieId);
+    setSelectedScreen(-1);
+    setSelectedDate("날짜선택");
+    setFinishTimes([]);
+    scrollAni(movieListRef);
+    setTheatherStep(2);
+
     // 여기서 스크린 상영정보 api 통신 추가.
   };
 
-  const handleStartSelect = (screening_id: number) => {
+  const handleScreenSelect = (screening_id: number) => {
     setSelectedScreen(screening_id);
+    setTheatherStep(4);
     scrollAni(seatButtonRef);
   };
   const handleCinema = () => {
-    if (selectedMovie !== undefined) setMovie(selectedMovie);
-    if (selectedRegion != undefined && selectedTheater != undefined)
-      setCinema({ region: selectedRegion, theather: selectedTheater });
-    if (selectedDate != undefined && selectedScreen != undefined) {
-      setScreen(selectedScreen);
-      setDate(selectedDate);
-    }
+    setMovie(selectedMovie);
+    setCinema({ region: selectedRegion, theather: selectedTheater });
+    setScreen(selectedScreen);
+    setDate(selectedDate);
+
     setActiveStep(2);
   };
 
   const fetchData = async () => {
     try {
-      if (selectedDate === undefined) return;
-
       const theather = findTheaterId(selectedTheater);
       if (theather == undefined) return; // theather가 undefined일 경우 처리
-      if (selectedMovie === undefined) return;
       const data: MovieRunningDetail[] = await fetchSpotAndDate(
         theather.name,
         selectedDate,
@@ -120,7 +136,12 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
 
   useEffect(() => {
     scrollAni(showtimeRef);
+    setTheatherStep(3);
     console.log(movieRunningDetail);
+    if (movieRunningDetail == undefined) {
+      setMovieRunningDetail(undefined);
+      return;
+    }
     const movie: Movie | undefined = findMovie(movieRunningDetail.kobisMovieCd);
     if (movie === undefined) return;
     const addTime = [];
@@ -157,7 +178,7 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
             </div>
           </div>
 
-          {selectedRegion && (
+          {theaterStep > 0 && (
             <div>
               <h2 className="text-xl font-semibold mb-3">극장 선택</h2>
               <div className="space-y-2">
@@ -207,11 +228,11 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
 
         {/* Right column: Movie selection and showtimes */}
         <div className="md:col-span-2">
-          {selectedTheater ? (
+          {theaterStep > 1 ? (
             <>
               {/* Right column: Movie selection and showtimes */}
               <div className="md:col-span-2" ref={movieListRef}>
-                {selectedTheater ? (
+                {movieList ? (
                   <>
                     <div className="flex justify-between items-center mb-4">
                       <h2 className="text-xl font-semibold">
@@ -317,26 +338,27 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
                       </div>
                     ) : null}
 
-                    {movieRunningDetail.kobisMovieCd && (
+                    {theaterStep > 2 && (
                       <div className="py-16" ref={showtimeRef}>
                         <h3 className="text-lg font-semibold mb-3">상영 시간</h3>
                         <div className="flex flex-wrap gap-2">
-                          {movieRunningDetail.screeningIds.map(
-                            (screening_id: number, i: number) => (
-                              <button
-                                key={screening_id}
-                                className={`flex flex-col items-center px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
-                                  selectedScreen === screening_id
-                                    ? "bg-blue-500 text-white border-blue-500"
-                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                                }`}
-                                onClick={() => handleStartSelect(screening_id)}
-                              >
-                                <span className="font-bold">
-                                  {movieRunningDetail.startTimes[i]}
-                                </span>
-                                <span className="text-xs">{finishTimes[i]}</span>
-                                {/* <span
+                          {movieRunningDetail !== undefined ? (
+                            movieRunningDetail.screeningIds.map(
+                              (screening_id: number, i: number) => (
+                                <button
+                                  key={screening_id}
+                                  className={`flex flex-col items-center px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
+                                    selectedScreen === screening_id
+                                      ? "bg-blue-500 text-white border-blue-500"
+                                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                  }`}
+                                  onClick={() => handleScreenSelect(screening_id)}
+                                >
+                                  <span className="font-bold">
+                                    {movieRunningDetail.startTimes[i]}
+                                  </span>
+                                  <span className="text-xs">{finishTimes[i]}</span>
+                                  {/* <span
                                 className={`text-xs ${
                                   selectedStart === movieRunningDetail.startTimes[i]
                                     ? "text-blue-100"
@@ -345,11 +367,14 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
                               >
                                 //{showtime.seats}
                               </span> */}
-                              </button>
+                                </button>
+                              )
                             )
+                          ) : (
+                            <div>해당 영화에 대한 상영정보가 없습니다.</div>
                           )}
                         </div>
-                        {selectedScreen && (
+                        {theaterStep > 3 && (
                           <div className="mt-6 flex justify-end" ref={seatButtonRef}>
                             <button
                               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
@@ -380,4 +405,4 @@ const BeforeMovie: React.FC<BeforeMovieProps> = ({
   );
 };
 
-export default BeforeMovie;
+export default SelectedTheater;
