@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 export interface Movie {
   id: number;
   title: string;
@@ -81,7 +83,7 @@ export const sampleMovies = [
 ];
 
 interface RecommendationResultProps {
-  movie: Movie;
+  movie: Movie | null;
   onGetAnotherRecommendation: () => void;
   onBackToHome: () => void;
   choiceRecommand: number;
@@ -95,6 +97,10 @@ export default function RecommendMovie({
   choiceRecommand,
   setChoiceRecommand,
 }: RecommendationResultProps) {
+  if (!movie) {
+    return <div className="text-white text-center">Loading recommendation...</div>;
+  }
+
   return (
     <div className="mx-auto max-w-4xl">
       <div className="flex justify-between items-center mb-8">
@@ -113,14 +119,14 @@ export default function RecommendMovie({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <img
-              src={movie.imageUrl || "/placeholder.svg"}
-              alt={movie.title}
+              src={movie?.imageUrl || "/placeholder.svg"}
+              alt={movie?.title || "Movie poster"}
               className="w-full h-auto rounded-lg shadow-lg"
             />
           </div>
           <div className="md:col-span-2">
             <h3 className="text-3xl font-bold text-white">
-              {movie.title} ({movie.year})
+              {movie?.title} {movie?.year ? `(${movie.year})` : ""}
             </h3>
             <div className="mt-2 flex items-center gap-2">
               <span className="px-2 py-1 bg-purple-500/20 text-purple-100 rounded text-sm">

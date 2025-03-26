@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChiceRecommand from "./choiceRecommand";
 import RecommendationMovie, { sampleMovies } from "./recommandMovie";
 export interface Movie {
@@ -21,8 +21,14 @@ export default function MovieRecommend() {
 
   const getRandomMovie = () => {
     const randomIndex = Math.floor(Math.random() * sampleMovies.length);
-    if (sampleMovies[randomIndex] !== null) setRecommendedMovie(sampleMovies[randomIndex]);
+    setRecommendedMovie(sampleMovies[randomIndex]);
+    return sampleMovies[randomIndex];
   };
+  useEffect(() => {
+    if (choiceRecommand !== 0) {
+      getRandomMovie();
+    }
+  }, [choiceRecommand]);
 
   return (
     <div className="relative isolate overflow-hidden bg-gray-900 py-24 sm:py-32">
