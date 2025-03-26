@@ -96,7 +96,7 @@ type movieRunningDetail =
 
 const movieRunningDetailSlices = createSlice({
   name: "movieRunningDetail",
-  initialState: { movieRunningDetail: {} as movieRunningDetail },
+  initialState: { movieRunningDetail: undefined as movieRunningDetail },
   reducers: {
     setMovieRunningDetail: (state, action) => {
       state.movieRunningDetail = action.payload;

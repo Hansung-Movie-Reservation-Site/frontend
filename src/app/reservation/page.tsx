@@ -38,16 +38,6 @@ export default function Reservation() {
   }, []);
   // 🚨서버에서 데이터 가져오기 🚨
 
-  // 🚨activeStep의 값변화에 따른 UI 관리: 경우의 수는 0,1,2,3 🚨
-  useEffect(() => {
-    console.log(activeStep);
-    console.log(cinema);
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 600);
-    return () => clearTimeout(timer);
-  }, [activeStep]);
-  // 🚨activeStep의 값변화에 따른 UI 관리. 🚨
-
   // 결제에 필요한 state 변수.
   const [movie, setMovie] = useState(-1);
   const [cinema, setCinema] = useState<{ region: number; theather: number }>({
@@ -55,8 +45,30 @@ export default function Reservation() {
     theather: -1,
   });
   const [date, setDate] = useState<string>("");
-  const [screen, setScreen] = useState<number>(0);
+  const [screen, setScreen] = useState<number>(-1);
   const [seats, setSeats] = useState<number[]>([]);
+
+  // 🚨activeStep의 값변화에 따른 UI 관리: 경우의 수는 0,1,2,3 🚨
+  useEffect(() => {
+    if (activeStep === -1) {
+      setMovie(-1);
+      setCinema({
+        region: -1,
+        theather: -1,
+      });
+      setDate("");
+      setScreen(-1);
+      setSeats([]);
+      setActiveStep(0);
+      return;
+    }
+    console.log(activeStep);
+    console.log(cinema);
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 600);
+    return () => clearTimeout(timer);
+  }, [activeStep]);
+  // 🚨activeStep의 값변화에 따른 UI 관리. 🚨
 
   return (
     <>
@@ -115,6 +127,7 @@ export default function Reservation() {
         ></ReservationState>
         {BookingState ? (
           <BookingInfo
+            setActiveStep={setActiveStep}
             setBookingState={setBookingState}
             movie={movie}
             cinema={cinema}

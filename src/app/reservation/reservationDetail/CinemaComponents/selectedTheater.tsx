@@ -10,7 +10,6 @@ import {
 import { fetchSpotAndDate } from "@/app/Common/Service/apiService";
 import { Movie, Region, Theater, MovieRunningDetail } from "../../typeReserve";
 import { calcFinishTime } from "@/app/Common/Service/timeClacService";
-import { setMovieRunningDetail } from "@/redux/redux";
 //db에서 region, spot, movie, screening의 start, date 부분 선택.
 // Sample data
 
@@ -109,7 +108,7 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
     setCinema({ region: selectedRegion, theather: selectedTheater });
     setScreen(selectedScreen);
     setDate(selectedDate);
-
+    setTheatherStep(0);
     setActiveStep(2);
   };
 
@@ -136,12 +135,12 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
 
   useEffect(() => {
     scrollAni(showtimeRef);
-    setTheatherStep(3);
-    console.log(movieRunningDetail);
+    //console.log(movieRunningDetail);
     if (movieRunningDetail == undefined) {
-      setMovieRunningDetail(undefined);
+      updateMovieRunningDetail(undefined);
       return;
     }
+    setTheatherStep(3);
     const movie: Movie | undefined = findMovie(movieRunningDetail.kobisMovieCd);
     if (movie === undefined) return;
     const addTime = [];
@@ -152,6 +151,8 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
     setFinishTimes(addTime);
     console.log(addTime);
   }, [movieRunningDetail]);
+
+  console.log(theaterStep);
 
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
