@@ -339,7 +339,7 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
                       </div>
                     ) : null}
 
-                    {theaterStep > 2 && (
+                    {selectedMovie && (
                       <div className="py-16" ref={showtimeRef}>
                         <h3 className="text-lg font-semibold mb-3">상영 시간</h3>
                         <div className="flex flex-wrap gap-2">

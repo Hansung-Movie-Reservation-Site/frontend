@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import ReservationNav from "./reservationUI/reservationNav";
 import SelectedSeat from "./reservationDetail/selectedSeat";
 import SelectedMovie from "./reservationDetail/selectedMovie";
@@ -23,19 +23,19 @@ export default function Reservation() {
 
   // 🚨서버에서 데이터 가져오기 🚨
   const { updateMovieList } = useReduxBoxoffice();
-  const fetchMovieList = async () => {
+  const fetchMovieList = useCallback(async () => {
     try {
       const data = await fetchBoxofficeGet();
-      console.log(data);
       updateMovieList(data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       updateMovieList([]);
     }
-  };
+  }, [updateMovieList]);
+
   useEffect(() => {
     fetchMovieList();
-  }, []);
+  }, [fetchMovieList]);
   // 🚨서버에서 데이터 가져오기 🚨
 
   // 결제에 필요한 state 변수.
@@ -49,26 +49,47 @@ export default function Reservation() {
   const [seats, setSeats] = useState<number[]>([]);
 
   // 🚨activeStep의 값변화에 따른 UI 관리: 경우의 수는 0,1,2,3 🚨
+  const resetState = () => {
+    setMovie(-1);
+    setCinema({ region: -1, theather: -1 });
+    setDate("");
+    setScreen(-1);
+    setSeats([]);
+    setActiveStep(0);
+  };
   useEffect(() => {
     if (activeStep === -1) {
-      setMovie(-1);
-      setCinema({
-        region: -1,
-        theather: -1,
-      });
-      setDate("");
-      setScreen(-1);
-      setSeats([]);
-      setActiveStep(0);
+      resetState();
       return;
     }
-    console.log(activeStep);
-    console.log(cinema);
     setIsLoading(true);
     const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
   }, [activeStep]);
   // 🚨activeStep의 값변화에 따른 UI 관리. 🚨
+
+  const steps = () => {
+    switch (activeStep) {
+      case 0:
+        return <SelectedMovie setActiveStep={setActiveStep} setMovie={setMovie} />;
+      case 1:
+        return (
+          <SelectedTheater
+            setActiveStep={setActiveStep}
+            setCinema={setCinema}
+            setMovie={setMovie}
+            setScreen={setScreen}
+            setDate={setDate}
+          />
+        );
+      case 2:
+        return <SelectedSeat setActiveStep={setActiveStep} setSeats={setSeats} screen={screen} />;
+      case 3:
+        return <Payment setBookingState={setBookingState} />;
+      default:
+        return <div>error</div>;
+    }
+  };
 
   return (
     <>
@@ -95,27 +116,7 @@ export default function Reservation() {
                   exit={{ opacity: 0, y: -20 }} // 사라질 때 위로 약간 올라가며 퇴장
                   transition={{ duration: 0.5, ease: "easeInOut" }} // 더 부드러운 효과 적용
                 >
-                  {activeStep === 0 ? (
-                    <SelectedMovie setActiveStep={setActiveStep} setMovie={setMovie} />
-                  ) : activeStep === 1 ? (
-                    <SelectedTheater
-                      setActiveStep={setActiveStep}
-                      setCinema={setCinema}
-                      setMovie={setMovie}
-                      setScreen={setScreen}
-                      setDate={setDate}
-                    />
-                  ) : activeStep === 2 ? (
-                    <SelectedSeat
-                      setActiveStep={setActiveStep}
-                      setSeats={setSeats}
-                      screen={screen}
-                    />
-                  ) : activeStep === 3 ? (
-                    <Payment setBookingState={setBookingState} />
-                  ) : (
-                    <div>error</div>
-                  )}
+                  {steps()}
                 </motion.div>
               )}
             </AnimatePresence>

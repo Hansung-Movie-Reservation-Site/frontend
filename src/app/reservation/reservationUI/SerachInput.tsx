@@ -1,6 +1,8 @@
+import { useReduxBoxoffice } from "@/redux/reduxService";
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
 
 const SerachInput = () => {
+  const { movieList } = useReduxBoxoffice();
   return (
     <div>
       <div className="mt-2">
