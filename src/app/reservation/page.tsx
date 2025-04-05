@@ -85,6 +85,7 @@ export default function Reservation() {
   const MemoSeat = lazy(() => import("./reservationDetail/selectedSeat"));
   const MemoPayment = lazy(() => import("./reservationDetail/payment"));
   const MemoInfo = lazy(() => import("./reservationUI/bookinginfo"));
+  //const MemoNav = lazy(() => import("./reservationUI/reservationNav"));
 
   // 🚨activeStep의 값변화에 따른 UI 관리: 경우의 수는 0,1,2,3 🚨
   useEffect(() => {
