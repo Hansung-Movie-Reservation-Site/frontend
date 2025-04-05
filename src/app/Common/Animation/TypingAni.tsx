@@ -1,4 +1,5 @@
 import { Typewriter } from "react-simple-typewriter";
+import { memo } from "react";
 
 export const TypingText = ({ text, className }: { text: string; className: string }) => {
   return (
@@ -12,3 +13,7 @@ export const TypingText = ({ text, className }: { text: string; className: strin
     </div>
   );
 };
+
+const MemoTypingText = memo(TypingText);
+MemoTypingText.displayName = "TypingText";
+export default MemoTypingText;

@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store";
 import { setMovieList, setMovieRunningDetail } from "./redux";
+import { shallowEqual } from "react-redux";
 
 type Movie = {
   id: number;
@@ -19,6 +20,7 @@ export const useReduxBoxoffice = () => {
   const dispatch = useDispatch();
   const movieList = useSelector((state: RootState) => state.movieList.movies);
   const updateMovieList = (newMovieList: Movie[]) => {
+    if (shallowEqual(newMovieList, movieList)) return;
     dispatch(setMovieList(newMovieList));
   };
   const findMovie = (kobisMovieCd: string) => {
