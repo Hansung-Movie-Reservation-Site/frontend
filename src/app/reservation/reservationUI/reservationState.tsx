@@ -1,15 +1,13 @@
 import { motion } from "framer-motion";
 import { ProgressBarAni } from "@/app/Common/Animation/motionAni";
+import { memo } from "react";
 
 interface ReservationStateProps {
   activeStep: number;
-  setBookingState: React.Dispatch<React.SetStateAction<boolean>>;
+  setMemoBookingState: (value: boolean) => void;
 }
 
-export const ReservationState: React.FC<ReservationStateProps> = ({
-  activeStep,
-  setBookingState,
-}) => {
+const ReservationState: React.FC<ReservationStateProps> = ({ activeStep, setMemoBookingState }) => {
   return (
     <motion.div
       initial={{ y: "100%" }}
@@ -19,7 +17,7 @@ export const ReservationState: React.FC<ReservationStateProps> = ({
     >
       <button
         title="2"
-        onClick={() => setBookingState(true)}
+        onClick={() => setMemoBookingState(true)}
         className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors shadow-md z-1"
       >
         <div className="fixed bottom-0 left-1/10 w-4/5 z-20 p-4 bg-white border-t border-gray-200 shadow-sm md:p-6 dark:bg-gray-800 dark:border-gray-600">
@@ -31,7 +29,9 @@ export const ReservationState: React.FC<ReservationStateProps> = ({
     </motion.div>
   );
 };
-
+const MemoReservationState = memo(ReservationState);
+MemoReservationState.displayName = "ReservationState";
+export default ReservationState;
 // {movie ? (
 //   <div className="w-full md:w-3/4 lg:w-4/5 space-y-4">
 //     <h2 className="text-2xl font-bold">{movie.title}</h2>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo, memo } from "react";
 import Image from "next/image";
 import { scrollAni } from "@/app/Common/Animation/motionAni";
 import {
@@ -14,19 +14,19 @@ import { calcFinishTime } from "@/app/Common/Service/timeClacService";
 // Sample data
 
 interface SelectedTheaterProps {
-  setActiveStep: React.Dispatch<React.SetStateAction<number>>;
-  setCinema: React.Dispatch<React.SetStateAction<{ region: number; theather: number }>>;
-  setMovie: React.Dispatch<React.SetStateAction<number>>;
-  setScreen: React.Dispatch<React.SetStateAction<number>>;
-  setDate: React.Dispatch<React.SetStateAction<string>>;
+  setMemoActiveStep: (id: number) => void;
+  setMemoMoive: (id: number) => void;
+  setMemoScreen: (id: number) => void;
+  setMemoCinema: (region: number, theather: number) => void;
+  setMemoDate: (id: string) => void;
 }
 
 const SelectedTheater: React.FC<SelectedTheaterProps> = ({
-  setActiveStep,
-  setMovie,
-  setScreen,
-  setCinema,
-  setDate,
+  setMemoActiveStep,
+  setMemoMoive,
+  setMemoScreen,
+  setMemoCinema,
+  setMemoDate,
 }) => {
   const [selectedRegion, setSelectedRegion] = useState<number>(-1);
   const [selectedTheater, setSelectedTheater] = useState<number>(-1);
@@ -40,9 +40,15 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
   const { movieList, findMovie } = useReduxBoxoffice();
   const { movieRunningDetail, updateMovieRunningDetail } = useMovieRunningDetail();
 
-  const filteredTheaters = theaterList.filter((theater) => theater.region_id === selectedRegion);
-  const getSelectedTheater = () => theaterList.find((theater) => theater.id === selectedTheater);
-  const getWeekDates = () => {
+  const filteredTheaters = useMemo(
+    () => theaterList.filter((theater) => theater.region_id === selectedRegion),
+    [selectedRegion]
+  );
+  const getSelectedTheater = useMemo(
+    () => theaterList.find((theater) => theater.id === selectedTheater),
+    [selectedTheater]
+  );
+  const getWeekDates = useMemo(() => {
     const today = new Date();
     const dates = [];
 
@@ -58,7 +64,7 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
     }
 
     return dates;
-  };
+  }, []);
 
   // 영화 목록 컨테이너에 대한 ref 생성
   const movieListRef = useRef<HTMLDivElement>(null);
@@ -104,32 +110,32 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
     scrollAni(seatButtonRef);
   };
   const handleCinema = () => {
-    setMovie(selectedMovie);
-    setCinema({ region: selectedRegion, theather: selectedTheater });
-    setScreen(selectedScreen);
-    setDate(selectedDate);
+    setMemoMoive(selectedMovie);
+    setMemoCinema(selectedRegion, selectedTheater);
+    setMemoScreen(selectedScreen);
+    setMemoDate(selectedDate);
     setTheatherStep(0);
-    setActiveStep(2);
+    setMemoActiveStep(2);
   };
 
-  const fetchData = async () => {
-    try {
-      const theather = findTheaterId(selectedTheater);
-      if (theather == undefined) return; // theather가 undefined일 경우 처리
-      const data: MovieRunningDetail[] = await fetchSpotAndDate(
-        theather.name,
-        selectedDate,
-        selectedMovie
-      );
-      const result = data[0];
-      updateMovieRunningDetail(result);
-      console.log(movieRunningDetail);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
   useEffect(() => {
     if (selectedDate === "날짜선택") return;
+    const fetchData = async () => {
+      try {
+        const theather = findTheaterId(selectedTheater);
+        if (theather == undefined) return; // theather가 undefined일 경우 처리
+        const data: MovieRunningDetail[] = await fetchSpotAndDate(
+          theather.name,
+          selectedDate,
+          selectedMovie
+        );
+        const result = data[0];
+        updateMovieRunningDetail(result);
+        console.log(movieRunningDetail);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
     fetchData();
   }, [selectedDate]);
 
@@ -149,15 +155,12 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
       addTime.push(time);
     }
     setFinishTimes(addTime);
-    console.log(addTime);
   }, [movieRunningDetail]);
 
   console.log(theaterStep);
 
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
-      <h1 className="text-3xl font-bold mb-6">영화 예매</h1>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-6">
           <div>
@@ -405,5 +408,6 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
     </div>
   );
 };
-
-export default SelectedTheater;
+const MemoizedSelectedTheater = memo(SelectedTheater);
+MemoizedSelectedTheater.displayName = "SelectedTheater";
+export default MemoizedSelectedTheater;

@@ -8,12 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import MemoTypingText, { TypingText } from "@/app/Common/Animation/typingAni";
 import Payment from "./reservationDetail/payment";
 import { BufferingAni } from "../Common/Animation/motionAni";
-import { ReservationState } from "./reservationUI/reservationState";
+import MemoReservationState from "./reservationUI/reservationState";
 import SelectedTheater from "./reservationDetail/CinemaComponents/selectedTheater";
 import BookingInfo from "./reservationUI/bookinginfo";
 import { fetchBoxofficeGet } from "../Common/Service/apiService";
 import { useReduxBoxoffice } from "@/redux/reduxService";
 import ScrollToTopButton from "../Common/scrollTopButton";
+import MemoizedBookingInfo from "./reservationUI/bookinginfo";
 
 export default function Reservation() {
   const [activeStep, setActiveStep] = useState(0); // 현재 활성화된 단계
@@ -51,16 +52,39 @@ export default function Reservation() {
   const [screen, setScreen] = useState<number>(-1);
   const [seats, setSeats] = useState<number[]>([]);
 
+  const setMemoBookingState = useCallback((id: boolean) => {
+    setBookingState(id);
+  }, []);
+
   const setMemoActiveStep = useCallback((id: number) => {
-    return setActiveStep(id);
+    setActiveStep(id);
   }, []);
+
   const setMemoMovie = useCallback((id: number) => {
-    return setMovie(id);
+    setMovie(id);
   }, []);
-  const MemoMovie = lazy(() => import("./reservationDetail/selectedMovie"));
-  // const MemoTheather = lazy(() => import("./reservationDetail/CinemaComponents/selectedTheater"));
-  // const MemoSeat = lazy(() => import("./reservationDetail/selectedSeat"));
-  // const MemoPayment = lazy(() => import("./reservationDetail/payment"));
+
+  const setMemoCinema = useCallback((region: number, theather: number) => {
+    setCinema({ region, theather });
+  }, []);
+
+  const setMemoDate = useCallback((dateStr: string) => {
+    setDate(dateStr);
+  }, []);
+
+  const setMemoScreen = useCallback((screenId: number) => {
+    setScreen(screenId);
+  }, []);
+
+  const setMemoSeats = useCallback((seatsArray: number[]) => {
+    setSeats(seatsArray);
+  }, []);
+
+  //const MemoMovie = lazy(() => import("./reservationDetail/selectedMovie"));
+  const MemoTheather = lazy(() => import("./reservationDetail/CinemaComponents/selectedTheater"));
+  const MemoSeat = lazy(() => import("./reservationDetail/selectedSeat"));
+  const MemoPayment = lazy(() => import("./reservationDetail/payment"));
+  const MemoInfo = lazy(() => import("./reservationUI/bookinginfo"));
 
   // 🚨activeStep의 값변화에 따른 UI 관리: 경우의 수는 0,1,2,3 🚨
   useEffect(() => {
@@ -85,28 +109,34 @@ export default function Reservation() {
   }, [activeStep]);
   // 🚨activeStep의 값변화에 따른 UI 관리. 🚨
 
-  // const steps = () => {
-  //   switch (activeStep) {
-  //     case 0:
-  //       return <MemoizedMoive setMemoActiveStep={setMemoActiveStep} setMemoMovie={setMemoMovie} />;
-  //     // case 1:
-  //     //   return (
-  //     //     <SelectedTheater
-  //     //       setActiveStep={setActiveStep}
-  //     //       setCinema={setCinema}
-  //     //       setMovie={setMovie}
-  //     //       setScreen={setScreen}
-  //     //       setDate={setDate}
-  //     //     />
-  //     //   );
-  //     // case 2:
-  //     //   return <SelectedSeat setActiveStep={setActiveStep} setSeats={setSeats} screen={screen} />;
-  //     // case 3:
-  //     //   return <Payment setBookingState={setBookingState} />;
-  //     default:
-  //       return <div>error</div>;
-  //   }
-  // };
+  const steps = () => {
+    switch (activeStep) {
+      case 0:
+        return <MemoizedMoive setMemoActiveStep={setMemoActiveStep} setMemoMovie={setMemoMovie} />;
+      case 1:
+        return (
+          <MemoTheather
+            setMemoActiveStep={setMemoActiveStep}
+            setMemoCinema={setMemoCinema}
+            setMemoDate={setMemoDate}
+            setMemoMoive={setMemoMovie}
+            setMemoScreen={setMemoScreen}
+          />
+        );
+      case 2:
+        return (
+          <MemoSeat
+            setMemoActiveStep={setMemoActiveStep}
+            setMemoSeats={setMemoSeats}
+            screen={screen}
+          />
+        );
+      case 3:
+        return <MemoPayment setMemoBookingState={setMemoBookingState} />;
+      default:
+        return <div>error</div>;
+    }
+  };
 
   return (
     <>
@@ -138,40 +168,30 @@ export default function Reservation() {
                     exit={{ opacity: 0, y: -20 }} // 사라질 때 위로 약간 올라가며 퇴장
                     transition={{ duration: 0.5, ease: "easeInOut" }} // 더 부드러운 효과 적용
                   >
-                    {/* <MemoizedMoive
-                      setMemoActiveStep={setMemoActiveStep}
-                      setMemoMovie={setMemoMovie}
-                    /> */}
-                    <Suspense fallback={<div>로딩 중...</div>}>
-                      {/* {steps()} */}
-                      <MemoMovie
-                        setMemoActiveStep={setMemoActiveStep}
-                        setMemoMovie={setMemoMovie}
-                      />
-                    </Suspense>
+                    <Suspense fallback={<div>로딩 중...</div>}>{steps()}</Suspense>
                   </motion.div>
                 </div>
               )}
             </AnimatePresence>
           </div>
         </main>
-        {/* <ReservationState
+        <MemoReservationState
           activeStep={activeStep}
-          setBookingState={setBookingState}
-        ></ReservationState>
+          setMemoBookingState={setMemoBookingState}
+        ></MemoReservationState>
         {BookingState ? (
-          <BookingInfo
-            setActiveStep={setActiveStep}
-            setBookingState={setBookingState}
+          <MemoInfo
+            setMemoActiveStep={setMemoActiveStep}
+            setMemoBookingState={setMemoBookingState}
             movie={movie}
             cinema={cinema}
             screen={screen}
             seats={seats}
             date={date}
-          ></BookingInfo>
+          ></MemoInfo>
         ) : (
           ""
-        )} */}
+        )}
         <ScrollToTopButton />
       </div>
     </>
