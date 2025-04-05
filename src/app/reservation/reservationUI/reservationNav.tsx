@@ -1,6 +1,6 @@
 "use client";
 import { Disclosure } from "@headlessui/react";
-import MemoTypingText from "../../Common/Animation/typingAni";
+import MemoTypingText from "../../Common/Animation/TypingAni";
 import { memo, useCallback } from "react";
 // { activeStep, setActiveStep }
 interface ReservationStateProps {

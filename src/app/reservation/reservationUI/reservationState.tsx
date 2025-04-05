@@ -18,7 +18,7 @@ const ReservationState: React.FC<ReservationStateProps> = ({ activeStep, setMemo
       <button
         title="2"
         onClick={() => setMemoBookingState(true)}
-        className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors shadow-md z-1"
+        className=" px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors shadow-md z-1"
       >
         <div className="fixed bottom-0 left-1/10 w-4/5 z-20 p-4 bg-white border-t border-gray-200 shadow-sm md:p-6 dark:bg-gray-800 dark:border-gray-600">
           <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">

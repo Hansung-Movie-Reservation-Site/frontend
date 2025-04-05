@@ -1,5 +1,5 @@
 "use client";
-import MemoTypingText, { TypingText } from "@/app/Common/Animation/typingAni";
+import MemoTypingText, { TypingText } from "@/app/Common/Animation/TypingAni";
 import { useRef, useEffect, memo, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";

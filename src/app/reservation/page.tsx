@@ -5,7 +5,7 @@ import MemoNav from "./reservationUI/reservationNav";
 import SelectedSeat from "./reservationDetail/selectedSeat";
 import MemoizedMoive from "./reservationDetail/selectedMovie";
 import { motion, AnimatePresence } from "framer-motion";
-import MemoTypingText, { TypingText } from "@/app/Common/Animation/typingAni";
+import MemoTypingText from "../Common/Animation/TypingAni";
 import Payment from "./reservationDetail/payment";
 import { BufferingAni } from "../Common/Animation/motionAni";
 import MemoReservationState from "./reservationUI/reservationState";
@@ -181,7 +181,7 @@ export default function Reservation() {
           setMemoBookingState={setMemoBookingState}
         ></MemoReservationState>
         {BookingState ? (
-          <MemoInfo
+          <MemoizedBookingInfo
             setMemoActiveStep={setMemoActiveStep}
             setMemoBookingState={setMemoBookingState}
             movie={movie}
@@ -189,7 +189,7 @@ export default function Reservation() {
             screen={screen}
             seats={seats}
             date={date}
-          ></MemoInfo>
+          ></MemoizedBookingInfo>
         ) : (
           ""
         )}
