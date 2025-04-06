@@ -89,6 +89,15 @@ const SelectedMovie: React.FC<SelectedMovieProps> = ({ setMemoActiveStep, setMem
       }),
     [boxoffice]
   );
+
+  const renderLoadingBoxOffice = useCallback(
+    () =>
+      Array.from({ length: 4 }).map((_, i) => {
+        return <div key={i} className="w-full h-40 bg-gray-200 animate-pulse rounded-lg"></div>;
+      }),
+    []
+  );
+
   return (
     <div className="bg-white shadow-md">
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8">
@@ -100,11 +109,7 @@ const SelectedMovie: React.FC<SelectedMovieProps> = ({ setMemoActiveStep, setMem
           <button onClick={() => setMemoMovie(-1)}>초기화</button>
 
           <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-            {boxoffice.length !== 0
-              ? renderBoxOffice()
-              : Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="w-full h-40 bg-gray-200 animate-pulse rounded-lg"></div>
-                ))}
+            {boxoffice.length !== 0 ? renderBoxOffice() : renderLoadingBoxOffice()}
           </div>
         </div>
       </div>
