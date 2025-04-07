@@ -19,6 +19,7 @@ interface SelectedTheaterProps {
   setMemoScreen: (id: number) => void;
   setMemoCinema: (region: number, theather: number) => void;
   setMemoDate: (id: string) => void;
+  movie: number;
 }
 
 const SelectedTheater: React.FC<SelectedTheaterProps> = ({
@@ -27,6 +28,7 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
   setMemoScreen,
   setMemoCinema,
   setMemoDate,
+  movie,
 }) => {
   const [selectedRegion, setSelectedRegion] = useState<number>(-1);
   const [selectedTheater, setSelectedTheater] = useState<number>(-1);
@@ -71,26 +73,22 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
   const showtimeRef = useRef<HTMLDivElement>(null);
   const seatButtonRef = useRef<HTMLDivElement>(null);
 
-  const [theaterStep, setTheatherStep] = useState(0);
-
   const handleRegionSelect = (regionId: number) => {
     setSelectedRegion(regionId);
     setSelectedTheater(-1);
-    setSelectedMovie(-1);
+    if (movie == -1) setSelectedMovie(-1);
     setSelectedScreen(-1);
     setSelectedDate("날짜선택");
     setFinishTimes([]);
-    setTheatherStep(1);
   };
 
   const handleTheaterSelect = (theaterId: number) => {
     setSelectedTheater(theaterId);
-    setSelectedMovie(-1);
+    if (movie == -1) setSelectedMovie(-1);
     setSelectedScreen(-1);
     setSelectedDate("날짜선택");
     setFinishTimes([]);
     scrollAni(movieListRef);
-    setTheatherStep(2);
   };
 
   const handleMovieSelect = (movieId: number) => {
@@ -99,14 +97,10 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
     setSelectedDate("날짜선택");
     setFinishTimes([]);
     scrollAni(movieListRef);
-    setTheatherStep(2);
-
-    // 여기서 스크린 상영정보 api 통신 추가.
   };
 
   const handleScreenSelect = (screening_id: number) => {
     setSelectedScreen(screening_id);
-    setTheatherStep(4);
     scrollAni(seatButtonRef);
   };
   const handleCinema = () => {
@@ -114,7 +108,6 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
     setMemoCinema(selectedRegion, selectedTheater);
     setMemoScreen(selectedScreen);
     setMemoDate(selectedDate);
-    setTheatherStep(0);
     setMemoActiveStep(2);
   };
 
@@ -141,12 +134,10 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
 
   useEffect(() => {
     scrollAni(showtimeRef);
-    //console.log(movieRunningDetail);
     if (movieRunningDetail == undefined) {
       updateMovieRunningDetail(undefined);
       return;
     }
-    setTheatherStep(3);
     const movie: Movie | undefined = findMovie(movieRunningDetail.kobisMovieCd);
     if (movie === undefined) return;
     const addTime = [];
@@ -295,7 +286,7 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
   }, [movieList, selectedMovie]);
 
   const showMovieDetail = useCallback(() => {
-    if (movieRunningDetail === undefined) return;
+    if (movieRunningDetail === undefined) return <div>해당 영화에 대한 상영정보가 없습니다.</div>;
 
     return movieRunningDetail.screeningIds.map((screening_id: number, i: number) => (
       <button
@@ -313,17 +304,21 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
     ));
   }, [movieRunningDetail]);
 
+  useEffect(() => {
+    setSelectedMovie(movie);
+  }, [movie]);
+
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-6">
           {showRegion()}
-          {theaterStep > 0 && showTheather()}
+          {selectedRegion !== -1 && showTheather()}
         </div>
 
         {/* Right column: Movie selection and showtimes */}
         <div className="md:col-span-2">
-          {theaterStep > 1 ? (
+          {selectedTheater !== -1 || movie !== -1 ? (
             <>
               <div className="md:col-span-2" ref={movieListRef}>
                 {movieList ? (
@@ -372,26 +367,18 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
                     {/* 영화 목록을 스크롤 가능한 컨테이너로 감싸기 */}
                     {showMovieList()}
 
-                    {selectedMovie && (
+                    {selectedDate !== "날짜선택" && (
                       <div className="py-16" ref={showtimeRef}>
                         <h3 className="text-lg font-semibold mb-3">상영 시간</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {movieRunningDetail !== undefined ? (
-                            showMovieDetail()
-                          ) : (
-                            <div>해당 영화에 대한 상영정보가 없습니다.</div>
-                          )}
+                        <div className="flex flex-wrap gap-2">{showMovieDetail()}</div>
+                        <div className="mt-6 flex justify-end" ref={seatButtonRef}>
+                          <button
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                            onClick={() => handleCinema()}
+                          >
+                            좌석 선택하기
+                          </button>
                         </div>
-                        {theaterStep > 3 && (
-                          <div className="mt-6 flex justify-end" ref={seatButtonRef}>
-                            <button
-                              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                              onClick={() => handleCinema()}
-                            >
-                              좌석 선택하기
-                            </button>
-                          </div>
-                        )}
                       </div>
                     )}
                   </>

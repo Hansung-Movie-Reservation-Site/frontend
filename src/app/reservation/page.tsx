@@ -2,15 +2,11 @@
 
 import { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import MemoNav from "./reservationUI/reservationNav";
-import SelectedSeat from "./reservationDetail/selectedSeat";
 import MemoizedMoive from "./reservationDetail/selectedMovie";
 import { motion, AnimatePresence } from "framer-motion";
 import MemoTypingText from "../Common/Animation/TypingAni";
-import Payment from "./reservationDetail/payment";
 import { BufferingAni } from "../Common/Animation/motionAni";
 import MemoReservationState from "./reservationUI/reservationState";
-import SelectedTheater from "./reservationDetail/CinemaComponents/selectedTheater";
-import BookingInfo from "./reservationUI/bookinginfo";
 import { fetchBoxofficeGet } from "../Common/Service/apiService";
 import { useReduxBoxoffice } from "@/redux/reduxService";
 import ScrollToTopButton from "../Common/scrollTopButton";
@@ -84,7 +80,7 @@ export default function Reservation() {
   const MemoTheather = lazy(() => import("./reservationDetail/CinemaComponents/selectedTheater"));
   const MemoSeat = lazy(() => import("./reservationDetail/selectedSeat"));
   const MemoPayment = lazy(() => import("./reservationDetail/payment"));
-  const MemoInfo = lazy(() => import("./reservationUI/bookinginfo"));
+  //const MemoInfo = lazy(() => import("./reservationUI/bookinginfo"));
   //const MemoNav = lazy(() => import("./reservationUI/reservationNav"));
 
   // 🚨activeStep의 값변화에 따른 UI 관리: 경우의 수는 0,1,2,3 🚨
@@ -122,6 +118,7 @@ export default function Reservation() {
             setMemoDate={setMemoDate}
             setMemoMoive={setMemoMovie}
             setMemoScreen={setMemoScreen}
+            movie={movie}
           />
         );
       case 2:
