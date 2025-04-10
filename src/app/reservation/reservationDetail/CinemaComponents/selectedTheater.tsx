@@ -300,7 +300,7 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
         <span className="text-xs">{finishTimes[i]}</span>
       </button>
     ));
-  }, [movieRunningDetail]);
+  }, [movieRunningDetail, selectedScreen]);
 
   useEffect(() => {
     setSelectedMovie(movie);
