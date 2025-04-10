@@ -148,8 +148,6 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
     setFinishTimes(addTime);
   }, [movieRunningDetail]);
 
-  console.log(theaterStep);
-
   const showRegion = useCallback(() => {
     return (
       <div>
