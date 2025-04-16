@@ -63,7 +63,7 @@ const SelectedMovie: React.FC<SelectedMovieProps> = ({ setMemoActiveStep, setMem
               style={{ maxWidth: "250px" }}
             />
             {/* object-contain */}
-            <div className="mt-4 flex justify-between">
+            <div className="mt-4 flex justify-between items-start"> {/* items-start 추가 (버튼 조정) */}
               <div>
                 <h3 className="text-sm text-gray-700">
                   <a href={"#"}>
