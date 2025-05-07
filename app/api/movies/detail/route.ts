@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     const movie = movies.find((m: any) => m.id === Number(id))
 
     if (!movie) {
-      return NextResponse.json({ error: "영화를 찾을 수 없습니다." }, { status: 404 })
+      return NextResponse.json({ error: "영화를 찾�� 수 없습니다." }, { status: 404 })
     }
 
     return NextResponse.json(movie)
@@ -37,4 +37,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "영화 정보를 가져오는데 실패했습니다." }, { status: 500 })
   }
 }
-

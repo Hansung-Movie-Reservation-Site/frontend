@@ -353,9 +353,11 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
                                   alt={"/error.png"}
                                   width={200}
                                   height={300}
-                                  className="w-full h-[250px] object-cover"
+                                  className="w-full h-[250px] object-cover movie-poster"
+                                  style={{ aspectRatio: "2/3" }}
                                   onError={(e) => {
-                                    ;(e.target as HTMLImageElement).src = "/placeholder.svg"
+                                    ;(e.target as HTMLImageElement).src =
+                                      "/placeholder.svg?height=450&width=300&text=No+Image"
                                   }}
                                 />
                               </div>

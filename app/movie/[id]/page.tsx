@@ -269,12 +269,12 @@ export default function MovieDetailPage() {
               src={
                 movie.poster_path
                   ? makeImagePath(movie.poster_path)
-                  : "/placeholder.svg?height=300&width=200&text=No+Image"
+                  : "/placeholder.svg?height=450&width=300&text=No+Image"
               }
               className={styles.poster}
               alt={movie.title}
               onError={(e) => {
-                ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=300&width=200&text=No+Image"
+                ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=450&width=300&text=No+Image"
               }}
             />
             <div className={styles.info}>

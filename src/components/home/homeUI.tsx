@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { logout } from "../dashboard/dashboardFeatures"
-import { LogOut, Loader2 } from "lucide-react"
+import { LogOut, Loader2, Menu, X } from "lucide-react"
 import { fetchBoxofficeGet } from "../common/apiService"
 import type { Movie } from "../common/typeReserve"
 // 필요한 import 추가
@@ -23,6 +23,22 @@ export const HomeContent = () => {
   const [sortBy, setSortBy] = useState<"latest" | "popular">("latest")
   // Redux에서 선택된 영화 ID 관리 훅 사용
   const { setSelectedMovie } = useSelectedMovieForReservation()
+  // 모바일 메뉴 상태 추가
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  // 디버그 그리드 상태 (개발 중 레이아웃 확인용)
+  const [showDebugGrid, setShowDebugGrid] = useState(false)
+
+  useEffect(() => {
+    // 키보드 단축키로 디버그 그리드 토글 (Ctrl+Shift+G)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "G") {
+        setShowDebugGrid((prev) => !prev)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
 
   useEffect(() => {
     // API에서 영화 데이터 가져오기
@@ -206,16 +222,26 @@ export const HomeContent = () => {
     router.push(`/reservation`)
   }
 
+  // 모바일 메뉴 토글 함수
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
+
   return (
     <div className="min-h-screen flex flex-col w-full">
+      {/* 디버그 그리드 (Ctrl+Shift+G로 토글) */}
+      {showDebugGrid && <div className="debug-grid"></div>}
+
       {/* Header */}
       <header className="site-header border-none">
         <div className="site-container flex justify-between items-center">
-          {/* 왜인지 로그인, 회원가입 페이지와 마진이 다름; 16px 넣으면 맞음 */}
+          {/* 사이트 이름 - 항상 왼쪽에 위치 */}
           <div className="site-name" style={{ marginTop: "16px" }}>
             CinemagiX
           </div>
-          <nav className="flex" style={{ marginTop: "16px" }}>
+
+          {/* 데스크톱 네비게이션 - 큰 화면에서만 표시 */}
+          <nav className="hidden sm:flex" style={{ marginTop: "16px" }}>
             {isLoggedIn ? (
               <>
                 <span className="nav-link">
@@ -243,14 +269,61 @@ export const HomeContent = () => {
               </>
             )}
           </nav>
+
+          {/* 모바일 햄버거 메뉴 버튼 - 작은 화면에서만 표시 */}
+          <button
+            className="sm:hidden flex items-center justify-center p-2"
+            onClick={toggleMobileMenu}
+            style={{ marginTop: "16px" }}
+            aria-label="메뉴 열기"
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
+          </button>
         </div>
+
+        {/* 모바일 메뉴 드롭다운 - 햄버거 메뉴 클릭 시 표시 */}
+        {mobileMenuOpen && (
+          <div className="sm:hidden bg-white py-3 shadow-md">
+            <div className="site-container flex flex-col space-y-3">
+              {isLoggedIn ? (
+                <>
+                  <span className="nav-link text-center">
+                    <span className="text-primary font-medium">{username}</span>님 환영합니다
+                  </span>
+                  <Link href="/dashboard" className="nav-link text-center py-2">
+                    <span className="bg-primary text-white px-3 py-1.5 text-sm rounded">마이페이지</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="nav-link flex items-center justify-center text-gray-600 hover:text-primary py-2"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    로그아웃
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="nav-link text-center py-2 active">
+                    로그인
+                  </Link>
+                  <Link href="/register" className="nav-link text-center py-2">
+                    회원가입
+                  </Link>
+                  <Link href="/dashboard" className="nav-link text-center py-2">
+                    <span className="bg-primary text-white px-3 py-1.5 text-sm rounded">마이페이지</span>
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
       <main className="flex-1">
-        <div className="site-container py-8">
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-4">AI가 추천하는 영화</h2> {/* 영상말고 포스터로 변경? */}
+        <div className="py-8">
+          <section className="mb-20 site-container">
+            <h2 className="text-3xl font-bold mb-4">AI가 추천하는 영화</h2>
             <div className="featured-movie bg-gray-100 flex items-center justify-center">
               <img
                 src="/placeholder.svg?height=400&width=1200"
@@ -259,8 +332,8 @@ export const HomeContent = () => {
               />
             </div>
           </section>
-
-          <section>
+          <br/><br/>
+          <section className="site-container">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-bold">상영중인 영화</h2>
               <div>
@@ -298,19 +371,19 @@ export const HomeContent = () => {
               <div className="movie-grid">
                 {movies.map((movie) => (
                   <div key={movie.id} className="movie-card w-full overflow-hidden">
-                    <div className="bg-gray-200 h-64 rounded-md mb-3 relative group">
+                    <div className="bg-gray-200 rounded-md mb-3 relative group" style={{ aspectRatio: "2/3" }}>
                       <Link href={`/movie/${movie.id}`}>
                         <img
                           src={
                             movie.posterImage ||
-                            `/placeholder.svg?height=256&width=200&text=${encodeURIComponent(movie.title) || "/placeholder.svg"}`
+                            `/placeholder.svg?height=450&width=300&text=${encodeURIComponent(movie.title) || "/placeholder.svg"}`
                           }
                           alt={movie.title}
-                          className="h-full w-full object-cover rounded-md transition-opacity group-hover:opacity-75"
+                          className="h-full w-full object-cover rounded-md transition-opacity group-hover:opacity-75 movie-poster"
                           onError={(e) => {
                             // 이미지 로드 실패 시 플레이스홀더로 대체
                             ;(e.target as HTMLImageElement).src =
-                              `/placeholder.svg?height=256&width=200&text=${encodeURIComponent(movie.title)}`
+                              `/placeholder.svg?height=450&width=300&text=${encodeURIComponent(movie.title)}`
                           }}
                         />
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-300">
@@ -336,7 +409,12 @@ export const HomeContent = () => {
                         >
                           감독: {movie.director || "정보 없음"}
                         </p>
-                        <p className="text-xs text-gray-500">{movie.releaseDate} 개봉</p>
+                        <p
+                          className="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis"
+                          title={`${movie.releaseDate} 개봉`}
+                        >
+                          {movie.releaseDate} 개봉
+                        </p>
                         <p
                           className="text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis"
                           title={`${movie.runtime > 0 ? `${movie.runtime}분` : ""} ${movie.genres ? `| ${movie.genres}` : ""}`}
@@ -348,7 +426,7 @@ export const HomeContent = () => {
                         onClick={() => handleBooking(movie.id)}
                         className="bg-primary text-white text-xs px-3 py-1.5 rounded hover:bg-primary/90 transition-colors flex-shrink-0"
                       >
-                        예매하기
+                        예매
                       </button>
                     </div>
                   </div>

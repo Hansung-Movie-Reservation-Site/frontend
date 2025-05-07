@@ -80,7 +80,7 @@ export const RegisterForm = ({
               회원가입
             </Link>
             <Link href="/dashboard" className="nav-link">
-            <span className="bg-primary text-white px-2 py-1 text-xs rounded">마이페이지</span>
+              <span className="bg-primary text-white px-2 py-1 text-xs rounded">마이페이지</span>
             </Link>
           </nav>
         </div>
@@ -230,4 +230,3 @@ export const RegisterForm = ({
     </div>
   )
 }
-

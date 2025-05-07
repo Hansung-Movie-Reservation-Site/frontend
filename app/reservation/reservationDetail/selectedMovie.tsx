@@ -27,7 +27,7 @@ interface SelectedMovieProps {
 const SelectedMovie: React.FC<SelectedMovieProps> = ({ setMemoActiveStep, setMemoMovie }) => {
   const boxoffice = useSelector((state: RootState) => state.movieList.movies)
   console.log("랜더링됨.")
-  // Redux에서 선택된 영화 ID 가져오기
+  // Redux에서 선택된 영화 ID 가져기
   const { selectedMovieId, clearSelectedMovie } = useSelectedMovieForReservation()
 
   const movieList = "영화목록"
@@ -91,9 +91,9 @@ const SelectedMovie: React.FC<SelectedMovieProps> = ({ setMemoActiveStep, setMem
               <img
                 src={movie.posterImage || "/placeholder.svg"}
                 alt={movie.title || "영화 포스터"}
-                className="w-full h-full object-cover group-hover:opacity-75 transition-opacity"
+                className="w-full h-full object-cover group-hover:opacity-75 transition-opacity movie-poster"
                 onError={(e) => {
-                  ;(e.target as HTMLImageElement).src = "/placeholder.svg"
+                  ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=450&width=300&text=No+Image"
                 }}
               />
             </div>
