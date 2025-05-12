@@ -28,7 +28,7 @@ export type Movie = {
         roomIds: number[]
         screeningIds: number[]
         startTimes: string[]
-        tmdbMovieId: 696506
+        tmdbMovieId: number
       }
     | undefined
   
