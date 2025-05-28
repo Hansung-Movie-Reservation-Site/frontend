@@ -1,4 +1,5 @@
 "use client"
+import axios from "axios"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -53,8 +54,13 @@ export default function RegisterPage() {
     setError("")
 
     try {
-      await sendVerificationCode(email)
-      setVerificationSent(true)
+      // 대시보드와 동일하게 axios로 직접 호출
+      const response = await axios.post("https://hs-cinemagix.duckdns.org/api/v1/user/send", { email })
+      if (response.data === "SUCCESS") {
+        setVerificationSent(true)
+      } else {
+        setError("인증 코드 전송에 실패했습니다.")
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "인증 코드 전송 중 오류가 발생했습니다.")
     } finally {
@@ -72,8 +78,9 @@ export default function RegisterPage() {
     setError("")
 
     try {
-      const response = await verifyEmailCode(email, code)
-      if (response === "SUCCESS") {
+      // 대시보드와 동일하게 axios로 직접 호출
+      const response = await axios.post("https://hs-cinemagix.duckdns.org/api/v1/user/check", { email, code })
+      if (response.data === "SUCCESS") {
         setVerificationSuccess(true)
       } else {
         setError("인증 코드가 올바르지 않습니다.")

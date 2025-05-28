@@ -1,4 +1,5 @@
 import axios from "axios"
+import { apiService } from "../common/apiService"
 
 export interface UserData {
   username: string
@@ -248,7 +249,7 @@ export const sendVerificationCode = async (email: string): Promise<{ success: bo
   }
 
   try {
-    const response = await axios.post("/api/auth/verifyEmail", { email })
+    const response = await axios.post("https://hs-cinemagix.duckdns.org/api/v1/user/verifyEmail", { email })
 
     console.log("인증 코드 전송 응답:", response.data)
 
@@ -286,7 +287,7 @@ export const sendVerificationCode = async (email: string): Promise<{ success: bo
 export const verifyEmailCode = async (email: string, code: string): Promise<{ success: boolean; message: string }> => {
   try {
     // 백엔드 API 요청 시 code 파라미터 이름을 authnum으로 변경
-    const response = await axios.post("/api/auth/verify-code", { email, code })
+    const response = await axios.post("https://hs-cinemagix.duckdns.org/api/v1/user/check", { email, code })
 
     console.log("인증 코드 확인 응답:", response.data)
 
