@@ -87,6 +87,27 @@ export const apiServiceGet = async (url: string, token?: string) => {
   }
 }
 
+// 마이페이지에서 내가 찜한 극장 목록 가져오기 API
+export async function updateMyTheater(userId: number, mySpotList: number[]) {
+  const spotListParam = mySpotList.join(",");
+  const url = `https://hs-cinemagix.duckdns.org/api/v1/detail/update/myTheater?user_id=${userId}&mySpotList=${spotListParam}`;
+  const res = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+  });
+  return await res.json();
+}
+
+export async function getMyTheater(userId: number) {
+  const url = `https://hs-cinemagix.duckdns.org/api/v1/detail/retrieve/myTheater?user_id=${userId}`;
+  const res = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+  });
+  return await res.json();
+}
+
+// 영화 데이터 가져오기 API
 export const fetchBoxofficeGet = async () => {
   try {
     const headers: Record<string, string> = {
@@ -116,6 +137,7 @@ export const fetchBoxofficeGet = async () => {
 }
 // http://localhost:8080/api/v1/screening?date=날짜&spotName=극장
 
+// 상영 정보 가져오기 API
 export const fetchSpotAndDate = async (spot: string, date: string, movie_id: number) => {
   if (spot == undefined) return
   if (date == undefined) return
