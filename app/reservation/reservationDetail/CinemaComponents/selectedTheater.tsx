@@ -6,7 +6,6 @@ import { useState, useRef, useEffect, useMemo, memo } from "react"
 import Image from "next/image"
 import { scrollAni } from "@/src/components/common/Animation/motionAni"
 import { useRegion, useTheather, useMovieRunningDetail, useReduxBoxoffice } from "@/app/redux/reduxService"
-// 파일 상단에 import 부분에서 MovieRunningDetail 타입을 올바르게 가져오고 있는지 확인
 import type { Movie, Region, Theater, MovieRunningDetail } from "@/src/components/common/typeReserve"
 import { fetchSpotAndDate } from "@/src/components/common/apiService"
 import { calcFinishTime } from "@/src/components/common/timeClacService"
@@ -40,7 +39,8 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
   const { theaterList, findTheaterId } = useTheather()
   const { movieList, findMovie } = useReduxBoxoffice()
   const { movieRunningDetail, updateMovieRunningDetail } = useMovieRunningDetail()
-
+  const [myTheaterList, setMyTheaterList] = useState<{ id: number; spot_id: number }[]>([]);
+  
   const filteredTheaters = useMemo(
     () => theaterList.filter((theater) => theater.region_id === selectedRegion),
     [selectedRegion, theaterList],
@@ -77,31 +77,35 @@ const SelectedTheater: React.FC<SelectedTheaterProps> = ({
 
   const [theaterStep, setTheatherStep] = useState(0)
 
-  // 선호 영화관 정보를 API에서 불러오는 함수
-const getPreferredTheaterInfo = async () => {
-  // userId를 localStorage/sessionStorage에서 가져오거나, 로그인 상태에서 받아옴
-  const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
-  if (!userStr) return null;
-  let userId = null;
-  try {
-    const userData = JSON.parse(userStr);
-    userId = userData.user_id || userData.id;
-  } catch {
-    return null;
-  }
-  if (!userId) return null;
+  useEffect(() => {
+    // 선호 영화관 목록 불러오기
+    const fetchMyTheaterList = async () => {
+      const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
+      if (!userStr) return;
+      let userId = null;
+      try {
+        const userData = JSON.parse(userStr);
+        userId = userData.user_id || userData.id;
+      } catch {
+        return;
+      }
+      if (!userId) return;
 
-  // API 호출
-  const res = await getMyTheater(userId);
-  if (!res || !res.myTheatherList || res.myTheatherList.length === 0) return null;
-  const spotId = res.myTheatherList[0].spot_id;
-  // spotId로 region/theater 찾기
-  const theater = theaterList.find(t => t.id === spotId);
-  if (!theater) return null;
-  const region = regionList.find(r => r.id === theater.region_id);
-  if (!region) return null;
-  return { regionId: region.id, theaterId: theater.id };
-};
+      try {
+        const res = await fetch(`https://hs-cinemagix.duckdns.org/api/v1/detail/retrieve/myTheater?user_id=${userId}`, {
+          method: "POST",
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (data && data.myTheaterList) {
+          setMyTheaterList(data.myTheaterList);
+        }
+      } catch (e) {
+        // 에러 무시
+      }
+    };
+    fetchMyTheaterList();
+  }, [regionList, theaterList]);
 
   const handleRegionSelect = (regionId: number) => {
     setSelectedRegion(regionId)
@@ -252,26 +256,38 @@ const getPreferredTheaterInfo = async () => {
     setFinishTimes(addTime)
   }, [movieRunningDetail, theaterStep])
 
-  useEffect(() => {
-  // 선호 영화관 설정 (API에서 불러오기)
-  const fetchPreferredTheater = async () => {
-    const preferredTheater = await getPreferredTheaterInfo();
-    if (preferredTheater) {
-      setSelectedRegion(preferredTheater.regionId);
-      setTimeout(() => {
-        setSelectedTheater(preferredTheater.theaterId);
-        setTheatherStep(2);
-        scrollAni(movieListRef);
-      }, 100);
-    }
-  };
-  fetchPreferredTheater();
-}, [regionList, theaterList]);
-
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-6">
+          {/* 내 선호 영화관 탭 */}
+          {myTheaterList.length > 0 && (
+            <div>
+              <h2 className="text-xl font-semibold mb-3">내 선호 영화관</h2>
+              <div className="flex flex-wrap gap-2">
+                {myTheaterList.map((fav) => {
+                  const theater = theaterList.find(t => t.id === fav.spot_id);
+                  const region = regionList.find(r => r.id === theater?.region_id);
+                  if (!theater || !region) return null;
+                  return (
+                    <button
+                      key={fav.id}
+                      className="px-4 py-2 rounded-md text-sm font-medium transition-colors bg-blue-100 text-blue-800 hover:bg-blue-200"
+                      onClick={() => {
+                        setSelectedRegion(region.id);
+                        setSelectedTheater(theater.id);
+                        setTheatherStep(2);
+                        scrollAni(movieListRef);
+                      }}
+                    >
+                      {region.name} - {theater.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div>
             <h2 className="text-xl font-semibold mb-3">지역 선택</h2>
             <div className="flex flex-wrap gap-2">

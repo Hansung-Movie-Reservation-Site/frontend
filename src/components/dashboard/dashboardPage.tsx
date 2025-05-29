@@ -73,28 +73,14 @@ export default function DashboardPage() {
           }
           setLoading(false)
         } else {
-          // 사용자 정보가 없지만 토큰이 있는 경우, 기본 사용자 정보 생성
-          const defaultUser = {
-            email: "user@example.com",
-            username: "사용자",
-          }
-
-          console.log("사용자 정보가 없어 기본 정보를 사용합니다:", defaultUser)
-          localStorage.setItem("user", JSON.stringify(defaultUser))
-          setUser(defaultUser)
-          setLoading(false)
+          // 사용자 정보가 없으면 로그인 페이지로 이동
+          alert("로그인 후 이용 가능합니다.")
+          router.push("/login")
         }
       } catch (error) {
         console.error("인증 확인 중 오류:", error)
-        // 오류 발생 시에도 기본 사용자 정보로 진행
-        const defaultUser = {
-          email: "user@example.com",
-          username: "사용자",
-        }
-
-        localStorage.setItem("user", JSON.stringify(defaultUser))
-        setUser(defaultUser)
-        setLoading(false)
+        // 오류 발생 시 로그인 페이지로 이동
+        router.push("/login")
       }
     }
 
