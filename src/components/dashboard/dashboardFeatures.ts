@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from "@/lib/axios-config";
 import { apiService } from "../common/apiService"
 
 export interface UserData {
@@ -68,82 +68,71 @@ export const getUserProfile = (): UserData | null => {
  */
 export const logout = (): void => {
   // 모든 스토리지에서 제거
-  localStorage.removeItem("token")
   localStorage.removeItem("user")
-  sessionStorage.removeItem("token")
   sessionStorage.removeItem("user")
-
-  // 쿠키 제거
-  document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
 }
 
-/**
- * 사용자 정보 업데이트 함수
- * @param field 업데이트할 필드 (username, email, password)
- * @param value 새 값
- * @param currentPassword 현재 비밀번호 (인증용)
- * @returns 업데이트 결과
- */
+// 사용자 프로필 업데이트 함수
 export const updateUserProfile = async (
   field: string,
   value: string,
   currentPassword: string,
 ): Promise<{ success: boolean; message: string }> => {
   try {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token")
-    const userData = getUserProfile()
-
-    if (!token) {
-      throw new Error("인증 토큰이 없습니다.")
-    }
+    const userData = getUserProfile();
 
     if (!userData || !userData.email) {
-      throw new Error("사용자 정보를 찾을 수 없습니다.")
+      throw new Error("사용자 정보를 찾을 수 없습니다.");
     }
 
     if (!currentPassword) {
-      throw new Error("현재 비밀번호가 필요합니다.")
+      throw new Error("현재 비밀번호가 필요합니다.");
     }
 
     if (currentPassword === value) {
-      throw new Error("현재 비밀번호와 새 비밀번호가 동일합니다.")
+      throw new Error("현재 비밀번호와 새 비밀번호가 동일합니다.");
     }
 
     // 비밀번호 변경 시 새 비밀번호 확인
     if (field === "password" && !value) {
-      throw new Error("새 비밀번호가 필요합니다.")
+      throw new Error("새 비밀번호가 필요합니다.");
     }
 
-    console.log("업데이트 요청 준비:", {
-      field,
-      valueLength: value ? value.length : 0,
-      email: userData.email,
-      hasPassword: !!currentPassword,
-      hasNewPassword: field === "password" ? !!value : "N/A",
-    })
+    // 필드에 따라 다른 API 엔드포인트 사용
+    let apiEndpoint = "";
+    if (field === "username") {
+      apiEndpoint = "https://hs-cinemagix.duckdns.org/api/v1/detail/change/username";
+    } else if (field === "password") {
+      apiEndpoint = "https://hs-cinemagix.duckdns.org/api/v1/detail/change/password";
+    } else if (field === "email") {
+      apiEndpoint = "https://hs-cinemagix.duckdns.org/api/v1/detail/change/email";
+    } else {
+      throw new Error("지원하지 않는 필드입니다.");
+    }
 
-    // API 요청 데이터 구성 - 새로운 형식으로 변경
+    // API 요청 데이터 구성
     const requestData = {
       user_id: userData.user_id,
-      field,
-      value,
-      currentPassword,
-    }
+      password: currentPassword,
+      after: value,
+    };
 
     console.log("API 요청 데이터:", {
-      field: requestData.field,
-      valueLength: requestData.value ? requestData.value.length : 0,
-      hasPassword: !!requestData.currentPassword,
+      endpoint: apiEndpoint,
       user_id: requestData.user_id,
-    })
+      hasPassword: !!requestData.password,
+      afterLength: requestData.after ? requestData.after.length : 0,
+    });
 
-    const response = await axios.post("/api/user/update", requestData, {
+    const response = await axios.post(apiEndpoint, requestData, {
+      withCredentials: true,
       headers: {
-        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "*/*",
       },
-    })
+    });
 
-    console.log("API 응답:", response.data)
+    console.log("API 응답:", response.data);
 
     if (response.data.code === "SUCCESS") {
       return {
@@ -152,90 +141,88 @@ export const updateUserProfile = async (
           field === "password"
             ? "비밀번호가 변경되었습니다."
             : `${field === "username" ? "이름" : "이메일"}이 변경되었습니다.`,
-      }
+      };
     }
 
     return {
       success: false,
       message: response.data.message || "업데이트에 실패했습니다.",
-    }
+    };
   } catch (error: any) {
-    console.error("사용자 정보 업데이트 오류:", error)
-    console.error("상세 오류:", error.response?.data || "상세 정보 없음")
+    console.error("사용자 정보 업데이트 오류:", error);
+    console.error("상세 오류:", error.response?.data || "상세 정보 없음");
 
     return {
       success: false,
       message: error.response?.data?.message || error.message || "업데이트 중 오류가 발생했습니다.",
-    }
+    };
   }
-}
+};
 
-/**
- * 회원 탈퇴 함수
- * @param password 비밀번호 (인증용)
- * @returns 탈퇴 결과
- */
+// 회원 탈퇴 함수
 export const deleteUserAccount = async (password: string): Promise<{ success: boolean; message: string }> => {
   try {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token")
-    const userData = getUserProfile()
-
-    if (!token) {
-      throw new Error("인증 토큰이 없습니다.")
-    }
+    const userData = getUserProfile();
 
     if (!userData || !userData.email) {
-      throw new Error("사용자 정보를 찾을 수 없습니다.")
+      throw new Error("사용자 정보를 찾을 수 없습니다.");
     }
 
     if (!password) {
-      throw new Error("비밀번호가 필요합니다.")
+      throw new Error("비밀번호가 필요합니다.");
     }
 
     console.log("회원 탈퇴 요청 준비:", {
       email: userData.email,
       hasPassword: !!password,
-    })
+    });
 
     // API 요청 데이터 구성
     const requestData = {
       email: userData.email,
       password: password,
-    }
+    };
 
-    const response = await axios.post("/api/user/deleteAccount", requestData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    // Spring 서버로 직접 요청
+    const response = await axios.post(
+      "https://hs-cinemagix.duckdns.org/api/v1/user/deleteAccount",
+      requestData,
+      {
+        withCredentials: true, // 쿠키(JWT) 포함
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "*/*",
+        },
+      }
+    );
 
-    console.log("API 응답:", response.data)
+    console.log("API 응답:", response.data);
 
     if (response.data.code === "SUCCESS") {
       // 탈퇴 성공 시 로그아웃 처리
-      logout()
+      logout();
 
       return {
         success: true,
         message: "회원 탈퇴가 완료되었습니다.",
-      }
+      };
     }
 
     return {
       success: false,
       message: response.data.message || "회원 탈퇴에 실패했습니다.",
-    }
+    };
   } catch (error: any) {
-    console.error("회원 탈퇴 오류:", error)
-    console.error("상세 오류:", error.response?.data || "상세 정보 없음")
+    console.error("회원 탈퇴 오류:", error);
+    console.error("상세 오류:", error.response?.data || "상세 정보 없음");
 
     return {
       success: false,
       message:
         error.response?.data?.message || error.message || "회원 탈퇴 중 오류가 발생했습니다. 다시 시도해 주세요.",
-    }
+    };
   }
-}
+};
 
 // 이메일 인증 코드 전송 함수
 export const sendVerificationCode = async (email: string): Promise<{ success: boolean; message: string }> => {
@@ -284,10 +271,10 @@ export const sendVerificationCode = async (email: string): Promise<{ success: bo
 }
 
 // 이메일 인증 코드 확인 함수
-export const verifyEmailCode = async (email: string, code: string): Promise<{ success: boolean; message: string }> => {
+export const verifyEmailCode = async (email: string, authnum: string): Promise<{ success: boolean; message: string }> => {
   try {
     // 백엔드 API 요청 시 code 파라미터 이름을 authnum으로 변경
-    const response = await axios.post("https://hs-cinemagix.duckdns.org/api/v1/user/check", { email, code })
+    const response = await axios.post("https://hs-cinemagix.duckdns.org/api/v1/user/check", { email, authnum })
 
     console.log("인증 코드 확인 응답:", response.data)
 
@@ -326,10 +313,6 @@ export const verifyEmailCode = async (email: string, code: string): Promise<{ su
 // 사용자 예매 내역(주문+티켓) 조회 함수 - orderId 포함된 orders API 사용
 export const getUserTickets = async (userId: number): Promise<any> => {
   try {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token")
-    if (!token) {
-      throw new Error("인증 토큰이 없습니다.")
-    }
     // 주문(orders) API로 변경
     const response = await axios.get(
       `https://hs-cinemagix.duckdns.org/api/v1/orders/user/${userId}`,
@@ -337,7 +320,6 @@ export const getUserTickets = async (userId: number): Promise<any> => {
         headers: {
           "Content-Type": "application/json",
           Accept: "*/*",
-          Authorization: `Bearer ${token}`,
         },
       },
     )
